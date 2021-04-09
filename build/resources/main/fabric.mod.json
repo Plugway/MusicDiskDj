@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "mcmddj",
+  "version": "1.0.0",
+
+  "name": "Mc music disc dj",
+  "description": "Put your own music in minecraft.",
+  "authors": [
+    "Plugway"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/mcmddj/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "plugway.mc.music.disc.dj.MusicDiskDj"
+    ]
+  },
+  "mixins": [
+
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.x",
+    "fabric-key-binding-api-v1": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

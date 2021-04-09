@@ -1,0 +1,37 @@
+plugway/mc/music/disc/dj/image/HSV.java
+ plugway.mc.music.disc.dj.image.HSV
+plugway/mc/music/disc/dj/music/disks/Disk.java
+ plugway.mc.music.disc.dj.music.disks.Disk
+plugway/mc/music/disc/dj/image/colorThief/ColorThief.java
+ plugway.mc.music.disc.dj.image.colorThief.ColorThief
+plugway/mc/music/disc/dj/MusicDiskDj.java
+ plugway.mc.music.disc.dj.MusicDiskDj
+plugway/mc/music/disc/dj/music/downloader/MusicDownloader.java
+ plugway.mc.music.disc.dj.music.downloader.MusicDownloader
+plugway/mc/music/disc/dj/music/disks/MinecraftDiskProvider.java
+ plugway.mc.music.disc.dj.music.disks.MinecraftDiskProvider
+plugway/mc/music/disc/dj/image/TextureCreator.java
+ plugway.mc.music.disc.dj.image.TextureCreator
+plugway/mc/music/disc/dj/music/converter/MusicConverter.java
+ plugway.mc.music.disc.dj.music.converter.MusicConverter
+plugway/mc/music/disc/dj/files/GarbageRemover.java
+ plugway.mc.music.disc.dj.files.GarbageRemover
+plugway/mc/music/disc/dj/gui/widgets/WClickablePlainPanel.java
+ plugway.mc.music.disc.dj.gui.widgets.WClickablePlainPanel
+plugway/mc/music/disc/dj/gui/MainScreen.java
+ plugway.mc.music.disc.dj.gui.MainScreen
+plugway/mc/music/disc/dj/search/MusicSearchProvider.java
+ plugway.mc.music.disc.dj.search.MusicSearchProvider
+plugway/mc/music/disc/dj/image/colorThief/MMCQ.java
+ plugway.mc.music.disc.dj.image.colorThief.MMCQ
+ plugway.mc.music.disc.dj.image.colorThief.MMCQ$1
+ plugway.mc.music.disc.dj.image.colorThief.MMCQ$2
+ plugway.mc.music.disc.dj.image.colorThief.MMCQ$CMap
+ plugway.mc.music.disc.dj.image.colorThief.MMCQ$VBox
+plugway/mc/music/disc/dj/files/FileManager.java
+ plugway.mc.music.disc.dj.files.FileManager
+plugway/mc/music/disc/dj/gui/MainGui.java
+ plugway.mc.music.disc.dj.gui.MainGui
+ plugway.mc.music.disc.dj.gui.MainGui$inTheAreaOf
+plugway/mc/music/disc/dj/keybinds/OpenMenu.java
+ plugway.mc.music.disc.dj.keybinds.OpenMenu
