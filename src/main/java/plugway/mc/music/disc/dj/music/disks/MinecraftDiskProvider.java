@@ -4,7 +4,7 @@ import net.minecraft.util.Identifier;
 
 public class MinecraftDiskProvider {
     public static final Disk[] disks = generateDisks();
-    public static final int musicDisksCount = 13;
+    public static final int musicDisksCount = 16;
     private static Disk[] generateDisks(){
         Disk[] disks = new Disk[musicDisksCount];
         disks[0] = new Disk("C418", "13", new Identifier("minecraft","textures/item/music_disc_13.png"));
@@ -20,6 +20,9 @@ public class MinecraftDiskProvider {
         disks[10] = new Disk("C418", "11", new Identifier("minecraft","textures/item/music_disc_11.png"));
         disks[11] = new Disk("C418", "wait", new Identifier("minecraft","textures/item/music_disc_wait.png"));
         disks[12] = new Disk("Lena Raine", "Pigstep", new Identifier("minecraft","textures/item/music_disc_pigstep.png"));
+        disks[13] = new Disk("Lena Raine", "otherside", new Identifier("minecraft","textures/item/music_disc_otherside.png"));
+        disks[14] = new Disk("Samuel Åberg", "5", new Identifier("minecraft","textures/item/music_disc_5.png"));
+        disks[15] = new Disk("Aaron Cherof", "Relic", new Identifier("minecraft","textures/item/music_disc_relic.png"));
         return disks;
     }
 }

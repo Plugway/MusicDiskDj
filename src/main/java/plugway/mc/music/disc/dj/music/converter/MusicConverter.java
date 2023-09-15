@@ -43,11 +43,11 @@ public class MusicConverter {
         } catch (Exception ignored){}
     }*/
     public static File downloadOgg(Track track, int insteadOfDisk){                         //youtube-dl masterpiece
-        File target = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".weba");
+        //File target = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".weba");
         File oggTarget = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".ogg");
         try {
-            Runtime.getRuntime().exec(MusicDiskDj.modDirectoryPath+"\\youtube-dl.exe --extract-audio --audio-format vorbis --output \""+target.getName()+"\" "+track.getUrl(),
-                    null, target.getParentFile()).waitFor();    //make command for mono --postprocessor-args "-ac 1"
+            Runtime.getRuntime().exec(MusicDiskDj.modDirectoryPath+"\\yt-dlp.exe --extract-audio --audio-format vorbis --output \""+oggTarget.getName().substring(0, oggTarget.getName().length()-4)+"\" "+track.getUrl(),
+                    null, oggTarget.getParentFile()).waitFor();    //make command for mono --postprocessor-args "-ac 1"
         } catch (Exception e){
             e.printStackTrace();
         }

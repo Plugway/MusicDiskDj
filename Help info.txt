@@ -1,0 +1,2 @@
+https://github.com/The-Fireplace-Minecraft-Mods/Audiobook
+https://github.com/s-frei/TrackSearch/blob/b2f155e376f7cdf54e9598161aa5516daacbcf73/library/src/main/java/io/sfrei/tracksearch/tracks/deserializer/SoundCloudTrackDeserializer.java#L57

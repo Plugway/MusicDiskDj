@@ -1,6 +1,6 @@
 package plugway.mc.music.disc.dj.files;
 
-import net.fabricmc.loader.FabricLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -8,17 +8,22 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
+import org.apache.commons.compress.archivers.jar.JarArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
 import plugway.mc.music.disc.dj.MusicDiskDj;
+import plugway.mc.music.disc.dj.image.PreviewProvider;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,35 +38,48 @@ public class FileManager {
     public static boolean extractFilesForWork() {
         boolean result = true;
         try {
-            FabricLoader loader = FabricLoader.INSTANCE;
-            Optional<ModContainer> mod = loader.getModContainer("mcmddj");
-            Path modPath = mod.get().getRootPath();
-            if (modPath.endsWith(".jar")){
+            Path modPath = Path.of("/");
+            CodeSource codeSource = MusicDiskDj.class.getProtectionDomain().getCodeSource();
+            if (codeSource != null) {
+                try {
+                    modPath = Path.of(codeSource.getLocation().toURI());
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (modPath.toString().trim().endsWith(".jar")){
+                System.out.println("ends with jar");
+                System.out.println(modPath);
                 try {
                     JarArchiveInputStream inputStream = new JarArchiveInputStream(new FileInputStream(modPath.toString()));
                     JarArchiveEntry entry;
                     while ((entry = inputStream.getNextJarEntry()) != null) {
-                        if (entry.getName().equals("mcmddj_template.zip")){
-                            File copied = new File(MusicDiskDj.modDirectoryPath, entry.getName());
+                        System.out.println("entry: " + entry.getName());
+                        if (entry.getName().trim().equals("assets/mcmddj/templates/mcmddj_template.zip")){
+                            var fileName = entry.getName().split("/");
+                            File copied = new File(MusicDiskDj.modDirectoryPath, fileName[fileName.length-1]);
                             if (!copied.exists())
                                 IOUtils.copy(inputStream, new FileOutputStream(copied));
                         }
-                        if (entry.getName().equals("youtube-dl.exe")){
-                            File copied = new File(MusicDiskDj.modDirectoryPath, entry.getName());
+                        if (entry.getName().trim().equals("assets/mcmddj/ytdl/yt-dlp.exe")){
+                            var fileName = entry.getName().split("/");
+                            File copied = new File(MusicDiskDj.modDirectoryPath, fileName[fileName.length-1]);
                             if (!copied.exists())
                                 IOUtils.copy(inputStream, new FileOutputStream(copied));
                         }
                     }
+                    inputStream.close();
                 } catch (Exception e){
                     result = false;
                 }
-            } else {
+            } else {//WHY is it here        idk maybe 6 month after: it's for ide
+                modPath = FabricLoader.getInstance().getModContainer("mcmddj").orElse(null).getRootPaths().get(0);
                 File copied = new File(MusicDiskDj.modDirectoryPath, "mcmddj_template.zip");
                 if (!copied.exists())
                     FileUtils.copyFile(new File(modPath.toString()+"\\assets\\mcmddj\\templates\\mcmddj_template.zip"), copied);
-                copied = new File(MusicDiskDj.modDirectoryPath, "youtube-dl.exe");
+                copied = new File(MusicDiskDj.modDirectoryPath, "yt-dlp.exe");
                 if (!copied.exists())
-                    FileUtils.copyFile(new File(modPath.toString()+"\\assets\\mcmddj\\ytdl\\youtube-dl.exe"), copied);
+                    FileUtils.copyFile(new File(modPath.toString()+"\\assets\\mcmddj\\ytdl\\yt-dlp.exe"), copied);
             }
 
             ZipArchiveInputStream inputStream = new ZipArchiveInputStream(new FileInputStream(MusicDiskDj.modDirectoryPath+"\\mcmddj_template.zip"));
@@ -78,6 +96,8 @@ public class FileManager {
             }
         } catch (Exception e){
             result = false;
+            System.out.println("error while extracting files");
+            e.printStackTrace();
         }
         return result;
     }
@@ -113,6 +133,7 @@ public class FileManager {
             }
         }
     }
+
 
     public static void zipIt(String zipFile) {
         byte[] buffer = new byte[1024];

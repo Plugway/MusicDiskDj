@@ -14,16 +14,16 @@ public class MusicDownloader {
         try {
             FileUtils.copyURLToFile(new URL(track.getStreamUrl()), file); //replace with smth faster
         } catch (Exception e){
-            System.out.println("pizdec");
+            System.out.println("error when trying to download");
         }
         return file;
     }
     public static File downloadPreview(Track track, int insteadOfDisk){
-        File file = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".jpg");
+        File file = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".jpeg");
         try {
             FileUtils.copyURLToFile(new URL(track.getTrackMetadata().getThumbNailUrl()), file);
         } catch (Exception e){
-            System.out.println("pizdec");
+            System.out.println("error when trying to download");
         }
         return file;
     }

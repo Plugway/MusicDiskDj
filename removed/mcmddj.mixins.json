@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "plugway.mc.music.disc.dj.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "client": [
+    "BookEditScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

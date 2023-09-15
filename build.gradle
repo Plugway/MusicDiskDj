@@ -1,10 +1,10 @@
 plugins {
-	id 'fabric-loom' version '0.6-SNAPSHOT'
+	id 'fabric-loom' version '1.1-SNAPSHOT'
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -41,10 +41,28 @@ dependencies {
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
-	modImplementation include("io.github.cottonmc:LibGui:3.3.2+1.16.4")//4.0.0-alpha.1+21w11a")//3.3.2+1.16.4")
-	compile "io.sfrei:tracksearch:0.6.4"
+	modImplementation include("io.github.cottonmc:LibGui:8.0.2+1.20")//4.0.0-alpha.1+21w11a")//3.3.2+1.16.4")
+	implementation include("io.sfrei:tracksearch:0.8.1")
+	implementation include("com.squareup.okhttp3:okhttp:4.11.0")
+	implementation include("com.squareup.retrofit2:retrofit:2.9.0")
+	implementation include("org.jetbrains:annotations:13.0")
+	implementation include("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
+	implementation include("com.fasterxml.jackson.core:jackson-core:2.15.2")
+	implementation include("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+	implementation include("org.jsoup:jsoup:1.16.1")
+	implementation include("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.20")
+	implementation include("org.jetbrains.kotlin:kotlin-stdlib:1.6.20")
+	implementation include("org.jetbrains.kotlin:kotlin-stdlib-common:1.6.20")
+	implementation include("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.20")
+	implementation include("org.projectlombok:lombok:1.18.26")
+	implementation include("com.squareup.okhttp3:okhttp-urlconnection:4.11.0")
+	implementation include("com.squareup.okio:okio:3.2.0")
+	implementation include("com.squareup.okio:okio-jvm:3.2.0")
+	implementation include("org.slf4j:slf4j-api:2.0.7")
+
 	// https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
-	implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '2.7.0'
+	implementation include(group: 'net.lingala.zip4j', name: 'zip4j', version: '2.11.5')
+	implementation include(group: 'org.sejda.imageio', name: 'webp-imageio', version: '0.1.6')
 
 }
 
@@ -62,14 +80,6 @@ tasks.withType(JavaCompile).configureEach {
 	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
-
-	// The Minecraft launcher currently installs Java 8 for users, so your mod probably wants to target Java 8 too
-	// JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
-	// We'll use that if it's available, but otherwise we'll use the older option.
-	def targetVersion = 8
-	if (JavaVersion.current().isJava9Compatible()) {
-		 it.options.release = targetVersion
-	}
 }
 
 java {
@@ -84,6 +94,7 @@ jar {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
 }
+
 
 // configure the maven publication
 publishing {

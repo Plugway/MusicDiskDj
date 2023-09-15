@@ -3,25 +3,25 @@ package plugway.mc.music.disc.dj.search;
 import io.sfrei.tracksearch.clients.MultiSearchClient;
 import io.sfrei.tracksearch.clients.youtube.YouTubeClient;
 import io.sfrei.tracksearch.tracks.*;
+import io.sfrei.tracksearch.tracks.metadata.SoundCloudTrackFormat;
+import io.sfrei.tracksearch.tracks.metadata.SoundCloudTrackInfo;
 import io.sfrei.tracksearch.tracks.metadata.SoundCloudTrackMetadata;
+import io.sfrei.tracksearch.tracks.metadata.TrackMetadata;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MusicSearchProvider {
     private static YouTubeClient client = new YouTubeClient();   //add soundcloud support
     private static List<Track> failedSearch = new ArrayList<>();
-    private static final Track failedTrack = new SoundCloudTrack("Search failed!",
-            (long)0, "",
-            new SoundCloudTrackMetadata("","", (long)0, ""));
-    private static Track emptyTrack = new SoundCloudTrack("",
-            (long)0, "",
-            new SoundCloudTrackMetadata("","", (long)0, ""));
+    private static final Track failedTrack = SoundCloudTrack.builder().title("Search failed!").build();
+    private static final Track emptyTrack = SoundCloudTrack.builder().title("").duration(Duration.ZERO).build();
 
     public static List<Track> musicSearch(String query){
         List<Track> trackList;
         try{
-            trackList = new ArrayList<>(client.getTracksForSearch(query).getTracks());
+            trackList = new ArrayList<>(client.getTracksForSearch(query));
         } catch (Exception e){
             System.out.println("Search failed!");
             if (failedSearch.size() == 0)
@@ -42,6 +42,6 @@ public class MusicSearchProvider {
         return emptyTrack;
     }
     public static boolean isEmptyTrack(Track track){
-        return track.getTrackMetadata().getStreamAmount() == 0 && track.getLength() == 0;
+        return track.getDuration() == null || track.getDuration().isNegative() || track.getDuration().isZero();
     }
 }

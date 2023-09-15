@@ -1,5 +1,11 @@
 .git/
 .githhub/
 .gradle/
-.idea/
+build/
+gradle/
+out/
 run/
+.idea/
+*.iml
+*.ipr
+*.iws
