@@ -22,6 +22,10 @@ public class MusicSearchProvider {
         List<Track> trackList;
         try{
             trackList = new ArrayList<>(client.getTracksForSearch(query));
+//            var test2 = trackList.get(0).getUrl();
+//            var test = YouTubeTrack.builder().url(test2).build();
+//            var test3 = client.loadTrackInfo(test);
+//            System.out.println(test3);
         } catch (Exception e){
             System.out.println("Search failed!");
             if (failedSearch.size() == 0)

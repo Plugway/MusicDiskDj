@@ -38,6 +38,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.List;
 
 public class MainGui extends LightweightGuiDescription {
+    private static MainScreen mainScreen;
     private static final int resultsCount = 20;
     private static int choosedResult = -1;
     private static WTextField searchField = new WTextField(Text.translatable("musicdiskdj.name.field.suggestion"));
@@ -187,7 +188,10 @@ public class MainGui extends LightweightGuiDescription {
 
     }
     public static void open(){
-        MinecraftClient.getInstance().setScreen(new MainScreen(new MainGui()));
+        if (mainScreen == null){
+            mainScreen = new MainScreen(new MainGui());
+        }
+        MinecraftClient.getInstance().setScreen(mainScreen);
     }
     public static Runnable choose(int index, WClickablePlainPanel[] area, inTheAreaOf areaOf){
         return () -> {

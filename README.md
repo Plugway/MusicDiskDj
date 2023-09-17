@@ -10,7 +10,7 @@ TODO:
 - [ ] <span style="background:#affad1">add name in main gui  (blink Music Disk DJ in search suggestion hint field)</span>
 - [ ] <span style="background:#fff88f">dynamic results count</span>
 - [ ] <span style="background:#d3f8b6">handle all ignored exceptions</span>
-- [ ] <span style="background:#d2cbff">remove lag when open gui</span>
+- [x] <span style="background:#d2cbff">remove lag when open gui</span>
 - [x] <span style="background:#d3f8b6">fix previews(how?)  </span>
 	- [x] <span style="background:#fff88f">Remove generatePreviews thread call when gui opened first time</span>
 - [x] <span style="background:#d3f8b6">add 1.20 disk</span>
