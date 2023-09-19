@@ -1,12 +1,7 @@
 package plugway.mc.music.disc.dj.search;
 
-import io.sfrei.tracksearch.clients.MultiSearchClient;
 import io.sfrei.tracksearch.clients.youtube.YouTubeClient;
 import io.sfrei.tracksearch.tracks.*;
-import io.sfrei.tracksearch.tracks.metadata.SoundCloudTrackFormat;
-import io.sfrei.tracksearch.tracks.metadata.SoundCloudTrackInfo;
-import io.sfrei.tracksearch.tracks.metadata.SoundCloudTrackMetadata;
-import io.sfrei.tracksearch.tracks.metadata.TrackMetadata;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -19,22 +14,29 @@ public class MusicSearchProvider {
     private static final Track emptyTrack = SoundCloudTrack.builder().title("").duration(Duration.ZERO).build();
 
     public static List<Track> musicSearch(String query){
-        List<Track> trackList;
+        List<Track> trackList = new ArrayList<>();
         try{
-            trackList = new ArrayList<>(client.getTracksForSearch(query));
-//            var test2 = trackList.get(0).getUrl();
-//            var test = YouTubeTrack.builder().url(test2).build();
-//            var test3 = client.loadTrackInfo(test);
-//            System.out.println(test3);
+            var id = LinkValidator.getYTId(query);
+            if (id != null){
+                trackList.add(YouTubeMetadata.getTrack(id));
+            }
+            else if (LinkValidator.isValidSCLink(query)){
+                //System.out.println("cool sc link: " + query);
+            }
+            else
+                trackList = new ArrayList<>(client.getTracksForSearch(query));
         } catch (Exception e){
             System.out.println("Search failed!");
             if (failedSearch.size() == 0)
                 failedSearch.add(failedTrack);
             return failedSearch;
         }
-
         return trackList;
     }
+
+//    public static List<Track> musicSearch(List<String> links){
+//        return failedSearch;
+//    }
     public static List<Track> getEmptyList(int size){
         List<Track> emptyList = new ArrayList<>();
         for (int i = 0; i < size; i++){
@@ -42,6 +44,7 @@ public class MusicSearchProvider {
         }
         return emptyList;
     }
+    public static Track getFailedTrack(){ return failedTrack; }
     public static Track getEmptyTrack(){
         return emptyTrack;
     }
