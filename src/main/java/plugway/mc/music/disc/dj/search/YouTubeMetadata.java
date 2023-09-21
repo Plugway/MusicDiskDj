@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -22,14 +23,18 @@ public class YouTubeMetadata {
 
     public static List<Track> getTracks(List<String> videoIds){
         List<Track> trackList = new ArrayList<>();
+        for (int i = 0; i < videoIds.size(); i++) {
+            trackList.add(null);
+        }
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         for(var i = 0; i < videoIds.size(); i++){
             String videoId = videoIds.get(i);
             executorService.submit(() -> {
                 try{
                     String videoUrl = "https://www.youtube.com/watch?v="+videoId;
-                    String command = MusicDiskDj.modDirectoryPath+"\\yt-dlp.exe --skip-download --print title --print duration --print thumbnail --print channel --print view_count --no-warnings " + videoUrl;
-                    ProcessBuilder processBuilder = new ProcessBuilder(command);
+                    String command = MusicDiskDj.modDirectoryPath+"\\yt-dlp.exe";// --skip-download --print title --print duration --print thumbnail --print channel --print view_count --no-warnings " + videoUrl;
+                    List<String> commandList = Arrays.asList(command, "--skip-download", "--print", "title", "--print", "duration", "--print", "thumbnail", "--print", "channel", "--print", "view_count", "--no-warnings", videoUrl);
+                    ProcessBuilder processBuilder = new ProcessBuilder(commandList);
                     Process process = processBuilder.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                     String line;

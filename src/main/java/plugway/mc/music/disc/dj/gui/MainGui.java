@@ -186,7 +186,60 @@ public class MainGui extends LightweightGuiDescription {
 
         root.validate(this);
 
+        //animation
+        new Thread(MainGui::animateSearchFieldText).start();
+
     }
+
+    private static void animateSearchFieldText() {
+        int suggestionColor = 0x808080;
+        int minColor = 0x0A0A0A;
+        int maxColor = 0xF0F0F0;
+        int shiftValue = 10;
+        int currentColor = suggestionColor;
+        int sleepTime = 50;
+        try {
+            for (int i = 0; i < 3; i++) {
+                while (currentColor > minColor){//fade out suggestion
+                    currentColor = shiftColor(-shiftValue, currentColor);
+                    searchField.setSuggestionColor(currentColor);
+                    Thread.sleep(sleepTime);
+                }
+                searchField.setSuggestion(Text.translatable("musicdiskdj.name.mcmddj"));
+                while (currentColor < maxColor){//fade in mcmddj
+                    currentColor = shiftColor(shiftValue, currentColor);
+                    searchField.setSuggestionColor(currentColor);
+                    Thread.sleep(sleepTime);
+                }
+                while (currentColor > minColor){//fade out mcmddj
+                    currentColor = shiftColor(-shiftValue, currentColor);
+                    searchField.setSuggestionColor(currentColor);
+                    Thread.sleep(sleepTime);
+                }
+                searchField.setSuggestion(Text.translatable("musicdiskdj.name.field.suggestion"));
+                while (currentColor < suggestionColor){//fade in suggestion
+                    currentColor = shiftColor(shiftValue, currentColor);
+                    searchField.setSuggestionColor(currentColor);
+                    Thread.sleep(sleepTime);
+                }
+            }
+        } catch (Exception e){
+            searchField.setSuggestionColor(suggestionColor);
+            searchField.setSuggestion(Text.translatable("musicdiskdj.name.field.suggestion"));
+        }
+    }
+    private static int shiftColor(int value, int color){
+        int red = (color >> 16) & 0xFF;
+        int green = (color >> 8) & 0xFF;
+        int blue = color & 0xFF;
+
+        red += value;
+        green += value;
+        blue += value;
+
+        return (red << 16) | (green << 8) | blue;
+    }
+
     public static void open(){
         if (mainScreen == null){
             mainScreen = new MainScreen(new MainGui());

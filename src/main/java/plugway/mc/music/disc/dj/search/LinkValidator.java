@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LinkValidator {
-    private static Pattern youtubePattern = Pattern.compile("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/watch\\?v=[^&]+", Pattern.CASE_INSENSITIVE);
+    private static Pattern youtubePattern = Pattern.compile("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/watch\\?v=([^&]+)", Pattern.CASE_INSENSITIVE);
     private static Pattern soundcloudPattern = Pattern.compile("^(https?\\:\\/\\/)?(www\\.)?soundcloud\\.com\\/.+", Pattern.CASE_INSENSITIVE);
 
     public static boolean isValidYTLink(String link){

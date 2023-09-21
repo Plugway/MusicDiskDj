@@ -1,11 +1,12 @@
 {
   "musicdiskdj.name.label.result": "Search results",
-  "musicdiskdj.name.field.suggestion": "Search query",
+  "musicdiskdj.name.field.suggestion": "Search query / Paste link",
   "musicdiskdj.name.label.status.ready": "Ready",
   "musicdiskdj.name.label.status.searching": "Searching",
   "musicdiskdj.name.label.status.updatingResults": "Updating results",
   "musicdiskdj.name.label.status.cpCopyFiles": "Copying files",
   "musicdiskdj.name.label.status.cpDownloadingMusic": "Downloading music",
   "musicdiskdj.name.label.status.cpCreatingTexture": "Creating texture",
-  "musicdiskdj.name.label.status.cpCreatingArchive": "Creating archive"
+  "musicdiskdj.name.label.status.cpCreatingArchive": "Creating archive",
+  "musicdiskdj.name.mcmddj": "Music Disk DJ"
 }

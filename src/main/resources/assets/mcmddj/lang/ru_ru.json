@@ -1,11 +1,12 @@
 {
   "musicdiskdj.name.label.result": "Результаты поиска",
-  "musicdiskdj.name.field.suggestion": "Введите запрос",
+  "musicdiskdj.name.field.suggestion": "Введите запрос / Вставьте ссылку",
   "musicdiskdj.name.label.status.ready": "Готов",
   "musicdiskdj.name.label.status.searching": "Поиск",
   "musicdiskdj.name.label.status.updatingResults": "Обновление результатов",
   "musicdiskdj.name.label.status.cpCopyFiles": "Копирование файлов",
   "musicdiskdj.name.label.status.cpDownloadingMusic": "Скачивание",
   "musicdiskdj.name.label.status.cpCreatingTexture": "Создание текстуры",
-  "musicdiskdj.name.label.status.cpCreatingArchive": "Создание архива"
+  "musicdiskdj.name.label.status.cpCreatingArchive": "Создание архива",
+  "musicdiskdj.name.mcmddj": "Music Disk DJ"
 }
