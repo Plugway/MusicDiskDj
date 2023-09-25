@@ -5,6 +5,7 @@ import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
+import io.sfrei.tracksearch.clients.setup.TrackSource;
 import io.sfrei.tracksearch.tracks.Track;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
@@ -40,7 +41,7 @@ import java.util.List;
 public class MainGui extends LightweightGuiDescription {
     private static MainScreen mainScreen;
     private static final int resultsCount = 20;
-    private static int choosedResult = -1;
+    private static int chosenResult = -1;
     private static WTextField searchField = new WTextField(Text.translatable("musicdiskdj.name.field.suggestion"));
     //buttons
     private static WButton searchButton = new WButton(Text.translatable("gui.recipebook.search_hint"));
@@ -53,10 +54,11 @@ public class MainGui extends LightweightGuiDescription {
     private static WLabel[] views = new WLabel[resultsCount];
     private static WLabel[] duration = new WLabel[resultsCount];
     private static WLabel[] channel = new WLabel[resultsCount];
+    private static WLabel[] sourceName = new WLabel[resultsCount];
     private static List<Track> latestTracks = MusicSearchProvider.getEmptyList(resultsCount);
 
     private static final int musicDisksCount = MinecraftDiskProvider.musicDisksCount;
-    private static int choosedMusicDisk = -1;
+    private static int chosenMusicDisk = -1;
     private static WClickablePlainPanel[] disks = new WClickablePlainPanel[musicDisksCount];
     private static WSprite[] disksPreview = new WSprite[musicDisksCount];
     private static WLabel[] diskName = new WLabel[musicDisksCount];
@@ -110,16 +112,19 @@ public class MainGui extends LightweightGuiDescription {
             results[i].setAllowToClick(false);
             results[i].setOnClick(choose(i, results, inTheAreaOf.results)).onClick(0, 0, GLFW.GLFW_MOUSE_BUTTON_1);
             preview[i] = new WSprite(blankTexture);
-            name[i] =  new WLabel(toText(""));
+            name[i] = new WLabel(toText(""));
             views[i] = new WLabel(toText(""));
             duration[i] = new WLabel(toText(""));
             channel[i] = new WLabel(toText(""));
+            sourceName[i] = new WLabel(toText(""));
+            sourceName[i].setHorizontalAlignment(HorizontalAlignment.RIGHT);
 
             results[i].add(preview[i], 3, 3, 90, 50);
             results[i].add(name[i], preview[i].getX()+preview[i].getWidth()+10, preview[i].getY()+3);
             results[i].add(channel[i], preview[i].getX()+preview[i].getWidth()+10, name[i].getY()+10);
             results[i].add(views[i], preview[i].getX()+preview[i].getWidth()+10, channel[i].getY()+10);
             results[i].add(duration[i], preview[i].getX()+preview[i].getWidth()+10, views[i].getY()+10);
+            results[i].add(sourceName[i], preview[i].getX()+preview[i].getWidth()+10, duration[i].getY(), 282, 0);
 
             resultPanel.add(results[i], 5, 5+i*60, 388, 56);//386 60
         }
@@ -164,8 +169,8 @@ public class MainGui extends LightweightGuiDescription {
         disksPanel.add(disksSpacer, 5, musicDisksCount*40, 0, 5); //space after last disk in list 4pixels
 
         //turning on outline
-        choose(choosedResult, results, inTheAreaOf.results).run();
-        choose(choosedMusicDisk, disks, inTheAreaOf.disks).run();
+        choose(chosenResult, results, inTheAreaOf.results).run();
+        choose(chosenMusicDisk, disks, inTheAreaOf.disks).run();
 
 
         //operation buttons and bottom left part
@@ -254,9 +259,9 @@ public class MainGui extends LightweightGuiDescription {
                 if(i == index){
                     area[i].setBackgroundPainter(BackgroundPainter.createColorful(0));
                     if (areaOf == inTheAreaOf.results)
-                        choosedResult = i;
+                        chosenResult = i;
                     else
-                        choosedMusicDisk = i;
+                        chosenMusicDisk = i;
                 }
                 else
                     area[i].setBackgroundPainter(null);
@@ -300,22 +305,31 @@ public class MainGui extends LightweightGuiDescription {
             var isEmptyTrack = MusicSearchProvider.isEmptyTrack(track);
             name[i].setText(cutStringTo(42, track.getTitle()));
             if (!isEmptyTrack){
-                views[i].setText(toPrettyString(track.getTrackMetadata().getStreamAmount(), " views"));
                 duration[i].setText(toText(track.durationFormatted()));
                 var ident = PreviewProvider.getIdentifier(track.getTrackMetadata().getThumbNailUrl(), "result_" + i);
                 preview[i].setImage(ident);
                 channel[i].setText(toText(track.getTrackMetadata().getChannelName()));
+                if(track.getSource() == TrackSource.Youtube){
+                    views[i].setText(toPrettyString(track.getTrackMetadata().getStreamAmount(), " views"));
+                    sourceName[i].setText(toText("YouTube"));
+                    sourceName[i].setColor(0xc90000);
+                } else {
+                    views[i].setText(toPrettyString(track.getTrackMetadata().getStreamAmount(), " plays"));
+                    sourceName[i].setText(toText("SoundCloud"));
+                    sourceName[i].setColor(0xc94200);
+                }
 
                 results[i].setAllowToClick(true);
             } else {
                 views[i].setText(toText(""));
                 duration[i].setText(toText(""));
+                sourceName[i].setText(toText(""));
                 preview[i].setImage(blankTexture);
                 channel[i].setText(toText(""));
                 results[i].setAllowToClick(false);
             }
             results[i].setBackgroundPainter(null);
-            choosedResult = -1;
+            chosenResult = -1;
         }
         if(statusHandler.getProgressBarHandler().isLastSection())
             statusHandler.reset();
@@ -335,20 +349,20 @@ public class MainGui extends LightweightGuiDescription {
     }
     private static Runnable addTrackToDisks(WButton addButton){
         return () -> {
-            if (choosedMusicDisk == -1 || choosedResult == -1)
+            if (chosenMusicDisk == -1 || chosenResult == -1)
                 return;
             addButton.setEnabled(false);
-            musicDisks.set(choosedMusicDisk, latestTracks.get(choosedResult));
+            musicDisks.set(chosenMusicDisk, latestTracks.get(chosenResult));
             updateDisks();
             addButton.setEnabled(true);
         };
     }
     private static Runnable removeTrackFromDisks(WButton removeButton){
         return () -> {
-            if (choosedMusicDisk == -1)
+            if (chosenMusicDisk == -1)
                 return;
             removeButton.setEnabled(false);
-            musicDisks.set(choosedMusicDisk, MusicSearchProvider.getEmptyTrack());
+            musicDisks.set(chosenMusicDisk, MusicSearchProvider.getEmptyTrack());
             updateDisks();
             removeButton.setEnabled(true);
         };

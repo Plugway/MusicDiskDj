@@ -2,13 +2,17 @@
  Hello  
 TODO:  
 - [ ] <span style="background:#ff4d4f">add import/export through books</span>
-- [ ] <span style="background:#ff4d4f">add soundcloud support </span>
+- [x] <span style="background:#ff4d4f">add soundcloud support </span>
+	- [x] sc/yt link label
+	- [ ] parse sc links
+	- [ ] add reconnect button and connection info (Search results from: YT, SC    🔄)
 - [ ] <span style="background:#fff88f">remove garbage code  </span>
+- [ ] <span style="background:#d3f8b6">Disc names do not change after applying changes</span>
 - [ ] <span style="background:#9254de">add global/local music switch</span>
 - [ ] <span style="background:#40a9ff">read current downloaded songs from resource pack after minecraft reloading(from local config file? to share through books) </span>
 - [ ] <span style="background:#fff88f">dynamic results count</span>
 - [ ] <span style="background:#d3f8b6">handle all ignored exceptions</span>
-- [ ] Fix regex for yt links
+- [x] Fix regex for yt links
 - [x] <span style="background:#d2cbff">remove lag when open gui</span>
 - [x] <span style="background:#d3f8b6">fix previews(how?)  </span>
 	- [x] <span style="background:#fff88f">Remove generatePreviews thread call when gui opened first time</span>
