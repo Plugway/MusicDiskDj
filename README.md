@@ -1,5 +1,17 @@
-# mcmddj
- Hello  
+![](media/logo.png "Poggers")
+# Music Disk DJ
+
+---
+This mod allows you to seamlessly search music from YouTube and Soundcloud within the game and provides the functionality to replace vanilla music discs with your favorite songs. The mod is designed to be fully client-side. In future updates, there will be a possibility to share your playlists with other players.
+
+## Download
+
+---
+You can find a ready-made build of this mod on the [releases page](https://github.com/Plugway/MusicDiskDj/releases).
+
+## Dev Section
+
+---
 TODO:  
 - [ ] <span style="background:#ff4d4f">add import/export through books</span>
 - [x] <span style="background:#ff4d4f">add soundcloud support </span>
