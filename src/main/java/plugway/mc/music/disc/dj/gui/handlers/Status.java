@@ -7,5 +7,7 @@ public enum Status {
     cpCopyFiles,
     cpDownloadingMusic,
     cpCreatingTexture,
-    cpCreatingArchive
+    cpCreatingArchive,
+    connectingYT,
+    connectingSC
 }

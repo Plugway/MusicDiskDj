@@ -1,23 +1,29 @@
 package plugway.mc.music.disc.dj.music.disks;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.resource.language.LanguageManager;
+import net.minecraft.client.resource.language.TranslationStorage;
+import net.minecraft.item.MusicDiscItem;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.awt.*;
+
 public class Disk {
-    private String author;
-    private String name;
+    private MusicDiscItem disk;
     private Identifier id;
-    public Disk(String author, String name, Identifier id){
-        this.author = author;
-        this.name = name;
+    public Disk(MusicDiscItem disk, Identifier id){
+        this.disk = disk;
         this.id = id;
     }
 
     public String getAuthor() {
-        return author;
+        return I18n.translate(disk.getTranslationKey()+".desc").split(" - ")[0];
     }
 
     public String getName() {
-        return name;
+        return I18n.translate(disk.getTranslationKey()+".desc").split(" - ")[1];
     }
 
     public Identifier getId(){

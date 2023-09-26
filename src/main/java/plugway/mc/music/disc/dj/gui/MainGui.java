@@ -6,14 +6,18 @@ import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import io.sfrei.tracksearch.clients.setup.TrackSource;
+import io.sfrei.tracksearch.tracks.SoundCloudTrack;
 import io.sfrei.tracksearch.tracks.Track;
+import io.sfrei.tracksearch.tracks.YouTubeTrack;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
 import org.lwjgl.glfw.GLFW;
 import plugway.mc.music.disc.dj.MusicDiskDj;
+import plugway.mc.music.disc.dj.config.ConfigurationManager;
 import plugway.mc.music.disc.dj.files.FileManager;
 import plugway.mc.music.disc.dj.gui.handlers.ProgressBarHandler;
 import plugway.mc.music.disc.dj.gui.handlers.Status;
@@ -27,6 +31,7 @@ import plugway.mc.music.disc.dj.music.disks.Disk;
 import plugway.mc.music.disc.dj.music.disks.MinecraftDiskProvider;
 import plugway.mc.music.disc.dj.music.downloader.MusicDownloader;
 import plugway.mc.music.disc.dj.resourcepacks.ResourcePackHandler;
+import plugway.mc.music.disc.dj.search.LinkValidator;
 import plugway.mc.music.disc.dj.search.MusicSearchProvider;
 
 import javax.imageio.ImageIO;
@@ -48,6 +53,9 @@ public class MainGui extends LightweightGuiDescription {
     private static WButton removeButton = new WButton(toText("-"));
     private static WButton addButton = new WButton(toText("+"));
     private static WButton makeCoolButton = new WButton(Text.translatable("structure_block.mode.save"));
+    private static WButton reconnectButton = new WButton(toText("⟳"));
+    private static WLabel soundCloudAvaiLable = new WLabel(toText("SoundCloud"));
+    private static WLabel youTubeAvaiLable = new WLabel(toText("YouTube"));
     private static WClickablePlainPanel[] results = new WClickablePlainPanel[resultsCount];
     private static WSprite[] preview = new WSprite[resultsCount];
     private static WLabel[] name = new WLabel[resultsCount];
@@ -65,7 +73,7 @@ public class MainGui extends LightweightGuiDescription {
     private static WLabel[] diskAuthor = new WLabel[musicDisksCount];
     private static List<Track> musicDisks = MusicSearchProvider.getEmptyList(musicDisksCount);
     private static Identifier blankTexture = new Identifier("mcmddj", "textures/blank_debug1.png");
-    private static StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
+    public static StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
             new StatusLabelHandler());
 
     private enum inTheAreaOf {
@@ -88,10 +96,24 @@ public class MainGui extends LightweightGuiDescription {
         //RESULTS BLOCK
         WPlainPanel resultLabelPanel = new WPlainPanel();
         resultLabelPanel.setBackgroundPainter(BackgroundPainter.createColorful(0));
-        resultLabelPanel.setSize(searchField.getWidth(), 20);
+        resultLabelPanel.setSize(searchField.getWidth(), 22);
         WLabel resultLabel = new WLabel(Text.translatable("musicdiskdj.name.label.result"));
         resultLabel.setVerticalAlignment(VerticalAlignment.CENTER);
-        resultLabelPanel.add(resultLabel, 4, 0, resultLabelPanel.getWidth()-8, resultLabelPanel.getHeight());
+        reconnectButton.setOnClick(reconnect());
+        WLabel commaLabel = new WLabel(toText(", "));
+        soundCloudAvaiLable.setVerticalAlignment(VerticalAlignment.CENTER);
+        soundCloudAvaiLable.setColor(0xFFFFFF);
+        soundCloudAvaiLable.setSize(56, resultLabelPanel.getHeight()-2);
+        commaLabel.setVerticalAlignment(VerticalAlignment.CENTER);
+        commaLabel.setSize(6, resultLabelPanel.getHeight()-2);
+        youTubeAvaiLable.setVerticalAlignment(VerticalAlignment.CENTER);
+        youTubeAvaiLable.setColor(0xFFFFFF);
+        youTubeAvaiLable.setSize(42, resultLabelPanel.getHeight()-2);
+        resultLabelPanel.add(resultLabel, 4, 2, resultLabelPanel.getWidth()-8, resultLabelPanel.getHeight()-2);
+        resultLabelPanel.add(reconnectButton, resultLabelPanel.getWidth()-20, 1, 20, 20);
+        resultLabelPanel.add(soundCloudAvaiLable, reconnectButton.getX()-soundCloudAvaiLable.getWidth()-4, 2, soundCloudAvaiLable.getWidth(), resultLabelPanel.getHeight()-2);
+        resultLabelPanel.add(commaLabel, soundCloudAvaiLable.getX()-commaLabel.getWidth(), 2, commaLabel.getWidth(), resultLabelPanel.getHeight()-2);
+        resultLabelPanel.add(youTubeAvaiLable, commaLabel.getX()-youTubeAvaiLable.getWidth(), 2, youTubeAvaiLable.getWidth(), resultLabelPanel.getHeight()-2);
         root.add(resultLabelPanel, searchField.getX(), searchField.getY()+searchField.getHeight()-2, resultLabelPanel.getWidth(), resultLabelPanel.getHeight());
 
         WPlainPanel resultPanel = new WPlainPanel();
@@ -142,7 +164,7 @@ public class MainGui extends LightweightGuiDescription {
 
         for (int i = 0; i < musicDisksCount; i++){
             Track track = musicDisks.get(i);
-            Disk disk = MinecraftDiskProvider.disks[i];
+            Disk disk = MinecraftDiskProvider.disks.get(i);
             disks[i] = new WClickablePlainPanel();
             disks[i].setAllowToClick(false);
             disks[i].setOnClick(choose(i, disks, inTheAreaOf.disks));
@@ -193,7 +215,8 @@ public class MainGui extends LightweightGuiDescription {
 
         //animation
         new Thread(MainGui::animateSearchFieldText).start();
-
+        //connect to services
+        reconnect().run();
     }
 
     private static void animateSearchFieldText() {
@@ -270,10 +293,7 @@ public class MainGui extends LightweightGuiDescription {
     }
     public static Runnable performSearch(){
         return () -> {
-            makeCoolButton.setEnabled(false);
-            addButton.setEnabled(false);
-            removeButton.setEnabled(false);
-            searchButton.setEnabled(false);
+            disableAllButtons();
             Thread searchThread = new Thread(() -> {
                 String query = searchField.getText();
                 if (query.equals(""))
@@ -285,10 +305,7 @@ public class MainGui extends LightweightGuiDescription {
 
                 updateResults();
 
-                makeCoolButton.setEnabled(true);
-                addButton.setEnabled(true);
-                removeButton.setEnabled(true);
-                searchButton.setEnabled(true);
+                enableAllButtons();
             });
             searchThread.start();
         };
@@ -303,7 +320,7 @@ public class MainGui extends LightweightGuiDescription {
                 track = latestTracks.get(i);
             } catch (Exception ignored){}
             var isEmptyTrack = MusicSearchProvider.isEmptyTrack(track);
-            name[i].setText(cutStringTo(42, track.getTitle()));
+            name[i].setText(cutStringTo(42, track.getCleanTitle()));
             if (!isEmptyTrack){
                 duration[i].setText(toText(track.durationFormatted()));
                 var ident = PreviewProvider.getIdentifier(track.getTrackMetadata().getThumbNailUrl(), "result_" + i);
@@ -337,15 +354,26 @@ public class MainGui extends LightweightGuiDescription {
     private static void updateDisks(){
         for (int i = 0; i < musicDisksCount; i++) {
             Track track = musicDisks.get(i);
-            Disk disk = MinecraftDiskProvider.disks[i];
+            Disk disk = MinecraftDiskProvider.disks.get(i);
             if (MusicSearchProvider.isEmptyTrack(track)) {
                 diskAuthor[i].setText(toText(disk.getAuthor()));
                 diskName[i].setText(toText(disk.getName()));
             } else {
-                diskAuthor[i].setText(toText(track.getTrackMetadata().getChannelName()));
-                diskName[i].setText(cutStringTo(20, track.getTitle()));
+                diskAuthor[i].setText(toText(getTrueTitle(track.getCleanTitle(), track.getTrackMetadata().getChannelName()).split(" - ")[0]));
+                diskName[i].setText(cutStringTo(20, getTrueTitle(track.getCleanTitle(), track.getTrackMetadata().getChannelName()).split(" - ")[1]));
             }
         }
+    }
+    private static Runnable reconnect(){
+        return () -> {
+            disableAllButtons();
+            Thread connectThread = new Thread(() -> {
+
+                MusicSearchProvider.connect();
+                enableAllButtons();
+            });
+            connectThread.start();
+        };
     }
     private static Runnable addTrackToDisks(WButton addButton){
         return () -> {
@@ -369,12 +397,10 @@ public class MainGui extends LightweightGuiDescription {
     }
     private static Runnable createResourcePack(WButton makeCoolButton, WButton addButton, WButton removeButton, WButton searchButton){
         return () -> {
-            makeCoolButton.setEnabled(false);
-            addButton.setEnabled(false);
-            removeButton.setEnabled(false);
-            searchButton.setEnabled(false);
+            disableAllButtons();
             Thread creationThread = new Thread(() -> {
                 try {
+                    ConfigurationManager.clear();
                     statusHandler.getProgressBarHandler().setSectionsCount(3);
                     statusHandler.setStatus(Status.cpCopyFiles);
                     FileUtils.copyDirectory(new File(MusicDiskDj.templatePath), new File(MusicDiskDj.resultPath));
@@ -394,18 +420,24 @@ public class MainGui extends LightweightGuiDescription {
                         //File oggTrackFile = new File(MusicDiskDj.tempPath+"\\"+trackFile.getName().split("\\.")[0]+".ogg");
                         //converter.mp3ToOgg(trackFile, oggTrackFile);
                         FileUtils.copyFile(oggTrackFile, new File(MusicDiskDj.resultPath+
-                                "\\assets\\minecraft\\sounds\\records\\"+ MinecraftDiskProvider.disks[i].getName().toLowerCase()+".ogg"));
+                                "\\assets\\minecraft\\sounds\\records\\"+ MinecraftDiskProvider.disks.get(i).getName().toLowerCase()+".ogg"));
 
                         //dealing with textures
                         statusHandler.setStatus(Status.cpCreatingTexture);
                         File previewFile = MusicDownloader.downloadPreview(track, i);
                         Image preview = ImageIO.read(previewFile);
                         TextureCreator.modifyTexture(preview, new File(MusicDiskDj.resultPath+
-                                "\\assets\\minecraft\\"+ MinecraftDiskProvider.disks[i].getId().toString().split(":")[1]));
+                                "\\assets\\minecraft\\"+ MinecraftDiskProvider.disks.get(i).getId().toString().split(":")[1]));
 
                         //dealing with names
-                        langFileContent = langFileContent.replaceAll(MinecraftDiskProvider.disks[i].getAuthor()+" - "+
-                                MinecraftDiskProvider.disks[i].getName(), track.getCleanTitle());
+                        langFileContent = langFileContent.replaceAll(MinecraftDiskProvider.disks.get(i).getAuthor()+" - "+
+                                MinecraftDiskProvider.disks.get(i).getName(), getTrueTitle(track.getCleanTitle(), track.getTrackMetadata().getChannelName()));
+
+                        //adding to config
+                        if (track instanceof YouTubeTrack)
+                            ConfigurationManager.add(LinkValidator.getYTId(track.getUrl()), i+1);
+                        if (track instanceof SoundCloudTrack)
+                            System.out.println("SC track config");//implementation needed
                     }
                     statusHandler.getProgressBarHandler().nextSection();
                     FileUtils.write(langFile, langFileContent, Charset.defaultCharset());
@@ -427,10 +459,7 @@ public class MainGui extends LightweightGuiDescription {
                     new File(MusicDiskDj.resultPath).mkdir();
 
                     statusHandler.reset();
-                    makeCoolButton.setEnabled(true);
-                    addButton.setEnabled(true);
-                    removeButton.setEnabled(true);
-                    searchButton.setEnabled(true);
+                    enableAllButtons();
                 } catch (Exception e){e.printStackTrace();}
 
             });
@@ -450,6 +479,40 @@ public class MainGui extends LightweightGuiDescription {
     }
     private static Text toText(String string){
         return Text.of(string);
+    }
+    private static void disableAllButtons(){
+        makeCoolButton.setEnabled(false);
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
+        searchButton.setEnabled(false);
+        reconnectButton.setEnabled(false);
+    }
+    private static void enableAllButtons(){
+        makeCoolButton.setEnabled(true);
+        addButton.setEnabled(true);
+        removeButton.setEnabled(true);
+        searchButton.setEnabled(true);
+        reconnectButton.setEnabled(true);
+    }
+    public static void colorYTConnected(){
+        youTubeAvaiLable.setColor(0xc90000);
+    }
+    public static void colorYTFailedToConnect(){
+        youTubeAvaiLable.setColor(0xffffff);
+    }
+    public static void colorSCConnected(){
+        soundCloudAvaiLable.setColor(0xc94200);
+    }
+    public static void colorSCFailedToConnect(){
+        soundCloudAvaiLable.setColor(0xffffff);
+    }
+
+    private static String getTrueTitle(String title, String channelName){
+        if (title.contains(" - "))
+            return title;
+        if (title.contains("-"))
+            return title.replaceFirst("-", " - ");
+        return  channelName + " - " + title;
     }
 
 }

@@ -5,13 +5,16 @@ TODO:
 - [x] <span style="background:#ff4d4f">add soundcloud support </span>
 	- [x] sc/yt link label
 	- [ ] parse sc links
-	- [ ] add reconnect button and connection info (Search results from: YT, SC    🔄)
+	- [x] add reconnect button and connection info (Search results from: YT, SC    🔄)
 - [ ] <span style="background:#fff88f">remove garbage code  </span>
-- [ ] <span style="background:#d3f8b6">Disc names do not change after applying changes</span>
 - [ ] <span style="background:#9254de">add global/local music switch</span>
-- [ ] <span style="background:#40a9ff">read current downloaded songs from resource pack after minecraft reloading(from local config file? to share through books) </span>
 - [ ] <span style="background:#fff88f">dynamic results count</span>
 - [ ] <span style="background:#d3f8b6">handle all ignored exceptions</span>
+- [ ] <span style="background:#fff88f">Fix freezing when trying to download when yt-dlp is not allowed to access the Internet (try again after a while)</span>
+- [ ] <span style="background:#ff4d4f">Reset mod state when exiting to the main menu</span>
+- [ ] <span style="background:#d3f8b6">Disable interactions with results before update completes</span>
+- [x] <span style="background:#d3f8b6">Disc names do not change after applying changes</span>
+- [x] <span style="background:#40a9ff">read current downloaded songs from resource pack after minecraft reloading(from local config file? to share through books) </span>
 - [x] Fix regex for yt links
 - [x] <span style="background:#d2cbff">remove lag when open gui</span>
 - [x] <span style="background:#d3f8b6">fix previews(how?)  </span>

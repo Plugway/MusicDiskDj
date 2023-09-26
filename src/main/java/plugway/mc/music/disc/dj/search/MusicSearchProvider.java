@@ -3,10 +3,13 @@ package plugway.mc.music.disc.dj.search;
 import io.sfrei.tracksearch.clients.soundcloud.SoundCloudClient;
 import io.sfrei.tracksearch.clients.youtube.YouTubeClient;
 import io.sfrei.tracksearch.tracks.*;
+import plugway.mc.music.disc.dj.gui.MainGui;
+import plugway.mc.music.disc.dj.gui.handlers.Status;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MusicSearchProvider {
     private static YouTubeClient clientYT = null;
@@ -16,11 +19,9 @@ public class MusicSearchProvider {
     private static final Track emptyTrack = SoundCloudTrack.builder().title("").duration(Duration.ZERO).build();
 
     public static List<Track> musicSearch(String query){
-        if (clientYT == null)
-            clientYT = new YouTubeClient();
-        if (clientSC == null)
-            clientSC = new SoundCloudClient();
         List<Track> trackList = new ArrayList<>();
+        List<Track> trackListYT = new ArrayList<>();
+        List<Track> trackListSC = new ArrayList<>();
         try{
             var id = LinkValidator.getYTId(query);
             if (id != null){
@@ -30,8 +31,14 @@ public class MusicSearchProvider {
             if (LinkValidator.isValidSCLink(query)){
                 //System.out.println("cool sc link: " + query);
             }
-            return  mergeTrackList(new ArrayList<>(clientYT.getTracksForSearch(query)), new ArrayList<>(clientSC.getTracksForSearch(query)));
-        } catch (Exception e){
+            if (clientYT == null && clientSC == null)
+                throw new Exception();
+            if (clientYT != null)
+                trackListYT = new ArrayList<>(clientYT.getTracksForSearch(query));
+            if (clientSC != null)
+                trackListSC = new ArrayList<>(clientSC.getTracksForSearch(query));
+            return  mergeTrackList(trackListYT, trackListSC);
+        } catch (Exception e){//don't stop if one of searches is unsuccessful (connected earlier but now fail)
             System.out.println("Search failed!");
             if (failedSearch.size() == 0)
                 failedSearch.add(failedTrack);
@@ -73,5 +80,51 @@ public class MusicSearchProvider {
     }
     public static boolean isEmptyTrack(Track track){
         return track.getDuration() == null || track.getDuration().isNegative() || track.getDuration().isZero();
+    }
+    public static void connect(){
+        MainGui.statusHandler.getProgressBarHandler().setSectionsCount(2);
+        MainGui.statusHandler.setStatus(1, Status.connectingYT);//status
+        try {
+            Thread clientYTThread = new Thread(() -> {
+                clientYT = new YouTubeClient();
+            });
+            clientYTThread.start();
+            int sleepCount = 10;//sleepCount*sleepTime = overall sleep time
+            while (sleepCount > 0 && clientYTThread.isAlive()){
+                Thread.sleep(1000);
+                sleepCount--;
+            }
+            if (clientYTThread.isAlive()){
+                clientYTThread.stop();
+                throw new Exception();
+            }
+            MainGui.colorYTConnected();
+        } catch (Exception e){
+            clientYT = null;
+            MainGui.colorYTFailedToConnect();
+        }
+
+        MainGui.statusHandler.getProgressBarHandler().nextSection();
+        MainGui.statusHandler.setStatus(1, Status.connectingSC);//status
+        try {
+            Thread clientSCThread = new Thread(() -> {
+                clientSC = new SoundCloudClient();
+            });
+            clientSCThread.start();
+            int sleepCount = 10;
+            while (sleepCount > 0 && clientSCThread.isAlive()){
+                Thread.sleep(1000);
+                sleepCount--;
+            }
+            if (clientSCThread.isAlive()){
+                clientSCThread.stop();
+                throw new Exception();
+            }
+            MainGui.colorSCConnected();
+        } catch (Exception e){
+            clientSC = null;
+            MainGui.colorSCFailedToConnect();
+        }
+        MainGui.statusHandler.reset();
     }
 }
