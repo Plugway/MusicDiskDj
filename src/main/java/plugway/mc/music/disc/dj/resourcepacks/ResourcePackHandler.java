@@ -23,7 +23,10 @@ public class ResourcePackHandler {
         reloadResources();
     }
 
-    private static void reloadResources(){
-        MinecraftClient.getInstance().reloadResources();
+    private static void reloadResources() {
+        try {
+            MinecraftClient.getInstance().reloadResources().get();
+        } catch (Exception ignored){}
+
     }
 }

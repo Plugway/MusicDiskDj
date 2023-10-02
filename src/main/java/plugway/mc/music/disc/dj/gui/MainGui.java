@@ -10,8 +10,6 @@ import io.sfrei.tracksearch.tracks.SoundCloudTrack;
 import io.sfrei.tracksearch.tracks.Track;
 import io.sfrei.tracksearch.tracks.YouTubeTrack;
 import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
@@ -44,37 +42,37 @@ import java.text.DecimalFormatSymbols;
 import java.util.List;
 
 public class MainGui extends LightweightGuiDescription {
-    private static MainScreen mainScreen;
-    private static final int resultsCount = 20;
-    private static int chosenResult = -1;
-    private static WTextField searchField = new WTextField(Text.translatable("musicdiskdj.name.field.suggestion"));
+    private final int resultsCount = 20;
+    private int chosenResult = -1;
+    private WTextField searchField = new WTextField(Text.translatable("musicdiskdj.name.field.suggestion"));
     //buttons
-    private static WButton searchButton = new WButton(Text.translatable("gui.recipebook.search_hint"));
-    private static WButton removeButton = new WButton(toText("-"));
-    private static WButton addButton = new WButton(toText("+"));
-    private static WButton makeCoolButton = new WButton(Text.translatable("structure_block.mode.save"));
-    private static WButton reconnectButton = new WButton(toText("⟳"));
-    private static WLabel soundCloudAvaiLable = new WLabel(toText("SoundCloud"));
-    private static WLabel youTubeAvaiLable = new WLabel(toText("YouTube"));
-    private static WClickablePlainPanel[] results = new WClickablePlainPanel[resultsCount];
-    private static WSprite[] preview = new WSprite[resultsCount];
-    private static WLabel[] name = new WLabel[resultsCount];
-    private static WLabel[] views = new WLabel[resultsCount];
-    private static WLabel[] duration = new WLabel[resultsCount];
-    private static WLabel[] channel = new WLabel[resultsCount];
-    private static WLabel[] sourceName = new WLabel[resultsCount];
-    private static List<Track> latestTracks = MusicSearchProvider.getEmptyList(resultsCount);
+    private WButton searchButton = new WButton(Text.translatable("gui.recipebook.search_hint"));
+    private WButton removeButton = new WButton(toText("-"));
+    private WButton addButton = new WButton(toText("+"));
+    private WButton makeCoolButton = new WButton(Text.translatable("structure_block.mode.save"));
+    private WButton reconnectButton = new WButton(toText("⟳"));
+    private WLabel soundCloudAvaiLable = new WLabel(toText("SoundCloud"));
+    private WLabel youTubeAvaiLable = new WLabel(toText("YouTube"));
+    private WClickablePlainPanel[] results = new WClickablePlainPanel[resultsCount];
+    private WSprite[] preview = new WSprite[resultsCount];
+    private WLabel[] name = new WLabel[resultsCount];
+    private WLabel[] views = new WLabel[resultsCount];
+    private WLabel[] duration = new WLabel[resultsCount];
+    private WLabel[] channel = new WLabel[resultsCount];
+    private WLabel[] sourceName = new WLabel[resultsCount];
+    private List<Track> latestTracks = MusicSearchProvider.getEmptyList(resultsCount);
 
-    private static final int musicDisksCount = MinecraftDiskProvider.musicDisksCount;
-    private static int chosenMusicDisk = -1;
-    private static WClickablePlainPanel[] disks = new WClickablePlainPanel[musicDisksCount];
-    private static WSprite[] disksPreview = new WSprite[musicDisksCount];
-    private static WLabel[] diskName = new WLabel[musicDisksCount];
-    private static WLabel[] diskAuthor = new WLabel[musicDisksCount];
-    private static List<Track> musicDisks = MusicSearchProvider.getEmptyList(musicDisksCount);
-    private static Identifier blankTexture = new Identifier("mcmddj", "textures/blank_debug1.png");
-    public static StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
+    private final int musicDisksCount = MinecraftDiskProvider.musicDisksCount;
+    private int chosenMusicDisk = -1;
+    private WClickablePlainPanel[] disks = new WClickablePlainPanel[musicDisksCount];
+    private WSprite[] disksPreview = new WSprite[musicDisksCount];
+    private WLabel[] diskName = new WLabel[musicDisksCount];
+    private WLabel[] diskAuthor = new WLabel[musicDisksCount];
+    private List<Track> musicDisks = MusicSearchProvider.getEmptyList(musicDisksCount);
+    private Identifier blankTexture = new Identifier("mcmddj", "textures/blank_debug1.png");
+    public StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
             new StatusLabelHandler());
+
 
     private enum inTheAreaOf {
         results, disks
@@ -84,6 +82,7 @@ public class MainGui extends LightweightGuiDescription {
         WPlainPanel root = new WPlainPanel();
         root.setSize(640,360);
         setRootPanel(root);
+
 
         searchField.setEditable(true);
         searchField.setMaxLength(50);
@@ -190,7 +189,7 @@ public class MainGui extends LightweightGuiDescription {
         disksSpacer.setSize(0, 0);
         disksPanel.add(disksSpacer, 5, musicDisksCount*40, 0, 5); //space after last disk in list 4pixels
 
-        //turning on outline
+        //turning on outline / possibly remove?
         choose(chosenResult, results, inTheAreaOf.results).run();
         choose(chosenMusicDisk, disks, inTheAreaOf.disks).run();
 
@@ -214,12 +213,12 @@ public class MainGui extends LightweightGuiDescription {
         root.validate(this);
 
         //animation
-        new Thread(MainGui::animateSearchFieldText).start();
+        new Thread(this::animateSearchFieldText).start();
         //connect to services
         reconnect().run();
     }
 
-    private static void animateSearchFieldText() {
+    private void animateSearchFieldText() {
         int suggestionColor = 0x808080;
         int minColor = 0x0A0A0A;
         int maxColor = 0xF0F0F0;
@@ -256,7 +255,7 @@ public class MainGui extends LightweightGuiDescription {
             searchField.setSuggestion(Text.translatable("musicdiskdj.name.field.suggestion"));
         }
     }
-    private static int shiftColor(int value, int color){
+    private static int shiftColor(int value, int color){//move to color utils
         int red = (color >> 16) & 0xFF;
         int green = (color >> 8) & 0xFF;
         int blue = color & 0xFF;
@@ -268,16 +267,14 @@ public class MainGui extends LightweightGuiDescription {
         return (red << 16) | (green << 8) | blue;
     }
 
-    public static void open(){
-        if (mainScreen == null){
-            mainScreen = new MainScreen(new MainGui());
-        }
-        MinecraftClient.getInstance().setScreen(mainScreen);
-    }
-    public static Runnable choose(int index, WClickablePlainPanel[] area, inTheAreaOf areaOf){
+    public Runnable choose(int index, WClickablePlainPanel[] area, inTheAreaOf areaOf){
         return () -> {
-            if (index == -1)
-                return;
+            if (index < 0 || index >= area.length){
+                if (areaOf == inTheAreaOf.results)
+                    chosenResult = -1;
+                else
+                    chosenMusicDisk = -1;
+            }
             for (int i = 0; i < area.length; i++){          //maybe remove?
                 if(i == index){
                     area[i].setBackgroundPainter(BackgroundPainter.createColorful(0));
@@ -291,7 +288,7 @@ public class MainGui extends LightweightGuiDescription {
             }
         };
     }
-    public static Runnable performSearch(){
+    public Runnable performSearch(){
         return () -> {
             disableAllButtons();
             Thread searchThread = new Thread(() -> {
@@ -310,7 +307,7 @@ public class MainGui extends LightweightGuiDescription {
             searchThread.start();
         };
     }
-    private static void updateResults(){
+    private void updateResults(){
         statusHandler.setStatus(Status.updatingResults);
         statusHandler.getProgressBarHandler().nextSection();
         for (int i = 0; i < resultsCount; i++){
@@ -351,7 +348,7 @@ public class MainGui extends LightweightGuiDescription {
         if(statusHandler.getProgressBarHandler().isLastSection())
             statusHandler.reset();
     }
-    private static void updateDisks(){
+    private void updateDisks(){
         for (int i = 0; i < musicDisksCount; i++) {
             Track track = musicDisks.get(i);
             Disk disk = MinecraftDiskProvider.disks.get(i);
@@ -364,18 +361,18 @@ public class MainGui extends LightweightGuiDescription {
             }
         }
     }
-    private static Runnable reconnect(){
+    private Runnable reconnect(){
         return () -> {
             disableAllButtons();
             Thread connectThread = new Thread(() -> {
 
-                MusicSearchProvider.connect();
+                MusicSearchProvider.connect(this, statusHandler);
                 enableAllButtons();
             });
             connectThread.start();
         };
     }
-    private static Runnable addTrackToDisks(WButton addButton){
+    private Runnable addTrackToDisks(WButton addButton){
         return () -> {
             if (chosenMusicDisk == -1 || chosenResult == -1)
                 return;
@@ -385,7 +382,7 @@ public class MainGui extends LightweightGuiDescription {
             addButton.setEnabled(true);
         };
     }
-    private static Runnable removeTrackFromDisks(WButton removeButton){
+    private Runnable removeTrackFromDisks(WButton removeButton){
         return () -> {
             if (chosenMusicDisk == -1)
                 return;
@@ -395,7 +392,7 @@ public class MainGui extends LightweightGuiDescription {
             removeButton.setEnabled(true);
         };
     }
-    private static Runnable createResourcePack(WButton makeCoolButton, WButton addButton, WButton removeButton, WButton searchButton){
+    private Runnable createResourcePack(WButton makeCoolButton, WButton addButton, WButton removeButton, WButton searchButton){
         return () -> {
             disableAllButtons();
             Thread creationThread = new Thread(() -> {
@@ -435,7 +432,7 @@ public class MainGui extends LightweightGuiDescription {
 
                         //adding to config
                         if (track instanceof YouTubeTrack)
-                            ConfigurationManager.add(LinkValidator.getYTId(track.getUrl()), i+1);
+                            ConfigurationManager.set(LinkValidator.getYTId(track.getUrl()), i);
                         if (track instanceof SoundCloudTrack)
                             System.out.println("SC track config");//implementation needed
                     }
@@ -447,11 +444,15 @@ public class MainGui extends LightweightGuiDescription {
                     File outputArchive = new File(MusicDiskDj.tempPath+"\\mcmddj_result.zip");
                     FileManager.archiveDirContents(new File(MusicDiskDj.resultPath), outputArchive);
 
-                    //copying archive to resource packs
+                    //copying archive to resource packs and reenabling it
                     statusHandler.setStatus(1.0/4*2);
                     ResourcePackHandler.DisableResourcePack("file/mcmddj_result.zip");
                     FileUtils.copyFile(outputArchive, new File(MusicDiskDj.mcDirectoryPath+"\\resourcepacks\\mcmddj_result.zip"));
                     ResourcePackHandler.EnableResourcePack("file/mcmddj_result.zip");
+
+                    //saving config and updating disks
+                    ConfigurationManager.saveConfig();
+                    updateDisks();
 
                     //collecting garbage
                     statusHandler.setStatus(1.0/4*3);
@@ -466,48 +467,48 @@ public class MainGui extends LightweightGuiDescription {
             creationThread.start();
         };
     }
-    private static Text cutStringTo(int charNum, String string){
+    private Text cutStringTo(int charNum, String string){//move somewhere else
         if (string.length() > charNum)
             string = string.substring(0,charNum) + "...";
         return toText(string);
     }
-    private static Text toPrettyString(Long number, String endsWith){
+    private Text toPrettyString(Long number, String endsWith){//move somewhere else
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
         symbols.setGroupingSeparator(' ');
         DecimalFormat formatter = new DecimalFormat("###,###", symbols);
         return toText(formatter.format(number) + endsWith);
     }
-    private static Text toText(String string){
+    private Text toText(String string){
         return Text.of(string);
-    }
-    private static void disableAllButtons(){
+    }//move somewhere else
+    private void disableAllButtons(){
         makeCoolButton.setEnabled(false);
         addButton.setEnabled(false);
         removeButton.setEnabled(false);
         searchButton.setEnabled(false);
         reconnectButton.setEnabled(false);
     }
-    private static void enableAllButtons(){
+    private void enableAllButtons(){
         makeCoolButton.setEnabled(true);
         addButton.setEnabled(true);
         removeButton.setEnabled(true);
         searchButton.setEnabled(true);
         reconnectButton.setEnabled(true);
     }
-    public static void colorYTConnected(){
+    public void colorYTConnected(){
         youTubeAvaiLable.setColor(0xc90000);
-    }
-    public static void colorYTFailedToConnect(){
+    }//move somewhere else
+    public void colorYTFailedToConnect(){
         youTubeAvaiLable.setColor(0xffffff);
-    }
-    public static void colorSCConnected(){
+    }//move somewhere else
+    public void colorSCConnected(){
         soundCloudAvaiLable.setColor(0xc94200);
-    }
-    public static void colorSCFailedToConnect(){
+    }//move somewhere else
+    public void colorSCFailedToConnect(){
         soundCloudAvaiLable.setColor(0xffffff);
-    }
+    }//move somewhere else
 
-    private static String getTrueTitle(String title, String channelName){
+    private String getTrueTitle(String title, String channelName){//move somewhere else
         if (title.contains(" - "))
             return title;
         if (title.contains("-"))

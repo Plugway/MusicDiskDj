@@ -23,8 +23,9 @@ TODO:
 - [ ] <span style="background:#fff88f">dynamic results count</span>
 - [ ] <span style="background:#d3f8b6">handle all ignored exceptions</span>
 - [ ] <span style="background:#fff88f">Fix freezing when trying to download when yt-dlp is not allowed to access the Internet (try again after a while)</span>
-- [ ] <span style="background:#ff4d4f">Reset mod state when exiting to the main menu</span>
+- [ ] <span style="background:#affad1">add missing cutStringTo();</span>
 - [ ] <span style="background:#d3f8b6">Disable interactions with results before update completes</span>
+- [x] <span style="background:#ff4d4f">Reset mod state when exiting to the main menu</span>
 - [x] <span style="background:#d3f8b6">Disc names do not change after applying changes</span>
 - [x] <span style="background:#40a9ff">read current downloaded songs from resource pack after minecraft reloading(from local config file? to share through books) </span>
 - [x] Fix regex for yt links

@@ -5,6 +5,7 @@ import io.sfrei.tracksearch.clients.youtube.YouTubeClient;
 import io.sfrei.tracksearch.tracks.*;
 import plugway.mc.music.disc.dj.gui.MainGui;
 import plugway.mc.music.disc.dj.gui.handlers.Status;
+import plugway.mc.music.disc.dj.gui.handlers.StatusHandler;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -81,9 +82,9 @@ public class MusicSearchProvider {
     public static boolean isEmptyTrack(Track track){
         return track.getDuration() == null || track.getDuration().isNegative() || track.getDuration().isZero();
     }
-    public static void connect(){
-        MainGui.statusHandler.getProgressBarHandler().setSectionsCount(2);
-        MainGui.statusHandler.setStatus(1, Status.connectingYT);//status
+    public static void connect(MainGui gui, StatusHandler statusHandler){
+        statusHandler.getProgressBarHandler().setSectionsCount(2);
+        statusHandler.setStatus(1, Status.connectingYT);//status
         try {
             Thread clientYTThread = new Thread(() -> {
                 clientYT = new YouTubeClient();
@@ -98,14 +99,14 @@ public class MusicSearchProvider {
                 clientYTThread.stop();
                 throw new Exception();
             }
-            MainGui.colorYTConnected();
+            gui.colorYTConnected();
         } catch (Exception e){
             clientYT = null;
-            MainGui.colorYTFailedToConnect();
+            gui.colorYTFailedToConnect();
         }
 
-        MainGui.statusHandler.getProgressBarHandler().nextSection();
-        MainGui.statusHandler.setStatus(1, Status.connectingSC);//status
+        statusHandler.getProgressBarHandler().nextSection();
+        statusHandler.setStatus(1, Status.connectingSC);//status
         try {
             Thread clientSCThread = new Thread(() -> {
                 clientSC = new SoundCloudClient();
@@ -120,11 +121,11 @@ public class MusicSearchProvider {
                 clientSCThread.stop();
                 throw new Exception();
             }
-            MainGui.colorSCConnected();
+            gui.colorSCConnected();
         } catch (Exception e){
             clientSC = null;
-            MainGui.colorSCFailedToConnect();
+            gui.colorSCFailedToConnect();
         }
-        MainGui.statusHandler.reset();
+        statusHandler.reset();
     }
 }
