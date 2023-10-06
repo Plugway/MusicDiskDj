@@ -10,5 +10,7 @@
   "musicdiskdj.name.label.status.cpCreatingArchive": "Creating archive",
   "musicdiskdj.name.label.status.connectingYT": "Connecting to YouTube",
   "musicdiskdj.name.label.status.connectingSC": "Connecting to SoundCloud",
-  "musicdiskdj.name.mcmddj": "Music Disk DJ"
+  "musicdiskdj.name.mcmddj": "Music Disk DJ",
+  "musicdiskdj.name.label.button.import": "Import",
+  "musicdiskdj.name.label.button.export": "Export"
 }

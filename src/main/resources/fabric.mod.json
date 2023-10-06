@@ -23,6 +23,7 @@
     ]
   },
   "mixins": [
+    "mcmddj.mixins.json"
   ],
 
   "depends": {

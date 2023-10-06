@@ -3,6 +3,7 @@ package plugway.mc.music.disc.dj;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
+import plugway.mc.music.disc.dj.config.ConfigurationManager;
 import plugway.mc.music.disc.dj.files.FileManager;
 import plugway.mc.music.disc.dj.keybinds.OpenMenu;
 
@@ -20,6 +21,7 @@ public class MusicDiskDj implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> { OpenMenu.resetGUI(); });
         if (!createModFolders()) //if can't create directory
             return;
+        ConfigurationManager.init();
         initKeyBinds();
     }
 
