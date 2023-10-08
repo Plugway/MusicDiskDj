@@ -4,10 +4,12 @@ public enum Status {
     ready,
     searching,
     updatingResults,
-    cpCopyFiles,
+    cpCopyFiles,        //creation process
     cpDownloadingMusic,
     cpCreatingTexture,
     cpCreatingArchive,
     connectingYT,
-    connectingSC
+    connectingSC,
+    epGettingTracks,    //export process
+    epAddingTracks
 }

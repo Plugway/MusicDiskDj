@@ -8,7 +8,12 @@
   "musicdiskdj.name.label.status.cpDownloadingMusic": "Скачиваю",
   "musicdiskdj.name.label.status.cpCreatingTexture": "Создаю текстуры",
   "musicdiskdj.name.label.status.cpCreatingArchive": "Собираю все вместе",
+  "musicdiskdj.name.label.status.epGettingTracks": "Экспорт: Получаю информацию о музыке",
+  "musicdiskdj.name.label.status.epAddingTracks": "Экспорт: Добавляю музыку",
   "musicdiskdj.name.mcmddj": "Music Disk DJ",
   "musicdiskdj.name.label.status.connectingYT": "Подключаюсь к YouTube",
-  "musicdiskdj.name.label.status.connectingSC": "Подключаюсь к SoundCloud"
+  "musicdiskdj.name.label.status.connectingSC": "Подключаюсь к SoundCloud",
+  "musicdiskdj.name.label.button.import": "Импорт",
+  "musicdiskdj.name.label.button.export": "Экспорт",
+  "musicdiskdj.name.error": "Ошибка"
 }

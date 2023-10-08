@@ -14,6 +14,9 @@ public class ProgressBarHandler {
     private int currentSection;
     private int currentValue;
 
+    private int maxBumpValue;
+    private int currentBump;
+
     public ProgressBarHandler(WBar.Direction direction, int minValue, int maxValue){
         this.sectionsCount = 1;
         this.currentSection = 1;
@@ -35,6 +38,8 @@ public class ProgressBarHandler {
     public void nextSection(){
         currentSection = java.lang.Math.min(currentSection+1, sectionsCount);
         setCurrentValue(0);
+        setMaxBumpValue(0);
+        currentBump = 0;
     }
     public void setCurrentValue(double currentValue) {
         currentValue = currentValue < 0 ? 0 : currentValue > 1 ? 1 : currentValue;
@@ -49,10 +54,21 @@ public class ProgressBarHandler {
         this.currentValue = minValue;
         this.sectionsCount = 1;
         this.currentSection = 1;
+
+        setMaxBumpValue(0);
+        currentBump = 0;
+
         updateProgressBar();
     }
     private void updateProgressBar(){
         properties.set(0, currentValue);
         progressBar.setProperties(properties);
+    }
+
+    public void setMaxBumpValue(int value){
+        maxBumpValue = java.lang.Math.max(value, 0);
+    }
+    public void bump(){
+        setCurrentValue(((double)++currentBump)/maxBumpValue);
     }
 }

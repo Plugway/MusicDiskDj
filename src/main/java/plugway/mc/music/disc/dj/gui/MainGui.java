@@ -15,6 +15,7 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
 import org.lwjgl.glfw.GLFW;
 import plugway.mc.music.disc.dj.MusicDiskDj;
+import plugway.mc.music.disc.dj.books.TextbookLogic;
 import plugway.mc.music.disc.dj.config.ConfigurationManager;
 import plugway.mc.music.disc.dj.files.FileManager;
 import plugway.mc.music.disc.dj.gui.handlers.ProgressBarHandler;
@@ -31,6 +32,7 @@ import plugway.mc.music.disc.dj.music.downloader.MusicDownloader;
 import plugway.mc.music.disc.dj.resourcepacks.ResourcePackHandler;
 import plugway.mc.music.disc.dj.search.LinkValidator;
 import plugway.mc.music.disc.dj.search.MusicSearchProvider;
+import plugway.mc.music.disc.dj.search.YouTubeMetadata;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -39,11 +41,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class MainGui extends LightweightGuiDescription {
     private final int resultsCount = 20;
     private int chosenResult = -1;
+    private boolean busy = false;
+    private Queue<Runnable> runQueue = new LinkedList<>();
     private WTextField searchField = new WTextField(Text.translatable("musicdiskdj.name.field.suggestion"));
     //buttons
     private WButton searchButton = new WButton(Text.translatable("gui.recipebook.search_hint"));
@@ -70,7 +76,7 @@ public class MainGui extends LightweightGuiDescription {
     private WLabel[] diskAuthor = new WLabel[musicDisksCount];
     private List<Track> musicDisks = MusicSearchProvider.getEmptyList(musicDisksCount);
     private Identifier blankTexture = new Identifier("mcmddj", "textures/blank_debug1.png");
-    public StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
+    private StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
             new StatusLabelHandler());
 
 
@@ -79,6 +85,8 @@ public class MainGui extends LightweightGuiDescription {
     }
 
     public MainGui() {
+        busy = true;
+
         WPlainPanel root = new WPlainPanel();
         root.setSize(640,360);
         setRootPanel(root);
@@ -215,7 +223,8 @@ public class MainGui extends LightweightGuiDescription {
         //animation
         new Thread(this::animateSearchFieldText).start();
         //connect to services
-        reconnect().run();
+        addToQueue(reconnect());
+        tryToRunNextTask();
     }
 
     private void animateSearchFieldText() {
@@ -290,7 +299,7 @@ public class MainGui extends LightweightGuiDescription {
     }
     public Runnable performSearch(){
         return () -> {
-            disableAllButtons();
+            setBusy();
             Thread searchThread = new Thread(() -> {
                 String query = searchField.getText();
                 if (query.equals(""))
@@ -302,7 +311,7 @@ public class MainGui extends LightweightGuiDescription {
 
                 updateResults();
 
-                enableAllButtons();
+                setNotBusy();
             });
             searchThread.start();
         };
@@ -363,11 +372,11 @@ public class MainGui extends LightweightGuiDescription {
     }
     private Runnable reconnect(){
         return () -> {
-            disableAllButtons();
+            setBusy();
             Thread connectThread = new Thread(() -> {
 
                 MusicSearchProvider.connect(this, statusHandler);
-                enableAllButtons();
+                setNotBusy();
             });
             connectThread.start();
         };
@@ -392,9 +401,34 @@ public class MainGui extends LightweightGuiDescription {
             removeButton.setEnabled(true);
         };
     }
+    public Runnable completeExport(){
+        return () -> {
+            setBusy();
+            Thread exportThread = new Thread(() -> {
+                statusHandler.getProgressBarHandler().setSectionsCount(2);
+                statusHandler.setStatus(Status.epGettingTracks);
+                var exported = TextbookLogic.getExported();
+                TextbookLogic.clearState();
+                var exportedTracks = YouTubeMetadata.getTracks(exported, true, statusHandler);
+                statusHandler.getProgressBarHandler().nextSection();
+                statusHandler.setStatus(Status.epAddingTracks);
+                for (int i = 0; i < musicDisks.size(); i++) {
+                    if (i >= exportedTracks.size()){
+                        musicDisks.set(i, MusicSearchProvider.getEmptyTrack());
+                        continue;
+                    }
+                    musicDisks.set(i, exportedTracks.get(i));
+                }
+                updateDisks();
+                statusHandler.reset();
+                setNotBusy();
+            });
+            exportThread.start();
+        };
+    }
     private Runnable createResourcePack(WButton makeCoolButton, WButton addButton, WButton removeButton, WButton searchButton){
         return () -> {
-            disableAllButtons();
+            setBusy();
             Thread creationThread = new Thread(() -> {
                 try {
                     ConfigurationManager.clear();
@@ -460,7 +494,7 @@ public class MainGui extends LightweightGuiDescription {
                     new File(MusicDiskDj.resultPath).mkdir();
 
                     statusHandler.reset();
-                    enableAllButtons();
+                    setNotBusy();
                 } catch (Exception e){e.printStackTrace();}
 
             });
@@ -481,14 +515,24 @@ public class MainGui extends LightweightGuiDescription {
     private Text toText(String string){
         return Text.of(string);
     }//move somewhere else
-    private void disableAllButtons(){
+    private void setBusy(){
+        busy = true;
+
+        TextbookLogic.disableAllButtons();
+
         makeCoolButton.setEnabled(false);
         addButton.setEnabled(false);
         removeButton.setEnabled(false);
         searchButton.setEnabled(false);
         reconnectButton.setEnabled(false);
     }
-    private void enableAllButtons(){
+    private void setNotBusy(){
+        busy = false;
+
+        tryToRunNextTask();
+
+        TextbookLogic.enableAllButtons();
+
         makeCoolButton.setEnabled(true);
         addButton.setEnabled(true);
         removeButton.setEnabled(true);
@@ -516,4 +560,11 @@ public class MainGui extends LightweightGuiDescription {
         return  channelName + " - " + title;
     }
 
+    public void tryToRunNextTask(){
+        if (!busy && runQueue.size() != 0)
+            runQueue.poll().run();
+    }
+    public void addToQueue(Runnable task){
+        runQueue.add(task);
+    }
 }

@@ -11,6 +11,9 @@ public class LinkValidator {
         Matcher matcher = youtubePattern.matcher(link.split("\\?si=")[0]);
         return matcher.matches();
     }
+    public static boolean isValidYTId(String id){
+        return id.length() == 11;
+    }
     public static String getYTId(String link){
         Matcher matcher = youtubePattern.matcher(link.split("\\?si=")[0]);
         if (matcher.matches())

@@ -15,13 +15,14 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import plugway.mc.music.disc.dj.books.TextbookLogic;
 import plugway.mc.music.disc.dj.config.ConfigurationManager;
 
 import java.util.List;
 
 
 @Mixin(BookEditScreen.class)
-public abstract class BookEditScreenMixin extends Screen {
+public abstract class BookEditScreenMixin extends Screen implements IBookEditScreen {
     @Shadow
     private int currentPage;
     @Shadow
@@ -40,9 +41,10 @@ public abstract class BookEditScreenMixin extends Screen {
         super(title);
     }
 
+
     @Inject(at = @At("RETURN"), method = "init")
     public void init(CallbackInfo ci) {
-
+        TextbookLogic.setBookEditScreen((BookEditScreen)(Object)this);
         importButton = ButtonWidget.builder(Text.translatable("musicdiskdj.name.label.button.import"), (button) -> {
 
             pages.clear();
@@ -55,12 +57,36 @@ public abstract class BookEditScreenMixin extends Screen {
 
         exportButton = ButtonWidget.builder(Text.translatable("musicdiskdj.name.label.button.export"), (button) -> {
 
-                    System.out.println("Yay, you exported something(but I don't know what and where)");
+            System.out.println("Yay, you exported something(but I don't know what and where)");
 
-                }).position(this.signButton.getX(), this.signButton.getY()+this.signButton.getHeight()+4)
+            try {
+                TextbookLogic.setExported(pages);
+            } catch (Exception e){
+                exportErrAnim();
+            }
+        }).position(this.signButton.getX(), this.signButton.getY()+this.signButton.getHeight()+4)
                 .size(this.signButton.getWidth(), this.signButton.getHeight()).build();
 
         this.addDrawableChild(importButton);
         this.addDrawableChild(exportButton);
+    }
+    private void exportErrAnim(){
+        new Thread(() -> {
+            exportButton.active = false;
+            exportButton.setMessage(Text.translatable("musicdiskdj.name.error"));
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {}
+            exportButton.active = true;
+            exportButton.setMessage(Text.translatable("musicdiskdj.name.label.button.export"));
+        }).start();
+    }
+    public void disableAllMdDjButtons(){
+        exportButton.active = false;
+        importButton.active = false;
+    }
+    public void enableAllMdDjButtons(){
+        exportButton.active = true;
+        importButton.active = true;
     }
 }
