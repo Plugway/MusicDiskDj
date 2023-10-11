@@ -2,7 +2,7 @@
 # Music Disk DJ
 
 ---
-This mod allows you to seamlessly search music from YouTube and Soundcloud within the game and provides the functionality to replace vanilla music discs with your favorite songs. The mod is designed to be fully client-side. In future updates, there will be a possibility to share your playlists with other players.
+This mod allows you to seamlessly search music from YouTube and Soundcloud within the game and provides the functionality to replace vanilla music discs with your favorite songs. Also share your playlists with other players via books (beta 0.8.0, YT only for now). The mod is designed to be fully client-side.
 
 ## Download
 
@@ -24,7 +24,10 @@ TODO:
 - [ ] <span style="background:#d3f8b6">handle all ignored exceptions</span>
 - [ ] <span style="background:#fff88f">Fix freezing when trying to download when yt-dlp is not allowed to access the Internet (try again after a while)</span>
 - [ ] <span style="background:#affad1">add missing cutStringTo();</span>
+- [ ] <span style="background:#affad1">Highlight discs with tracks</span>
+- [ ] <span style="background:#affad1">Fix names issue</span>
 - [ ] <span style="background:#d3f8b6">Disable interactions with results before update completes</span>
+- [ ] <span style="background:#fff88f">Fix special characters in names when exporting</span>
 - [ ] <span style="background:#ff4d4f">Cache tracks with info for faster minor changes in playlist</span>
 - [x] <span style="background:#ff4d4f">Reset mod state when exiting to the main menu</span>
 - [x] <span style="background:#d3f8b6">Disc names do not change after applying changes</span>

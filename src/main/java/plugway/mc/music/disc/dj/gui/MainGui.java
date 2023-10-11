@@ -223,6 +223,7 @@ public class MainGui extends LightweightGuiDescription {
         //animation
         new Thread(this::animateSearchFieldText).start();
         //connect to services
+        busy = false;
         addToQueue(reconnect());
         tryToRunNextTask();
     }
@@ -529,7 +530,8 @@ public class MainGui extends LightweightGuiDescription {
     private void setNotBusy(){
         busy = false;
 
-        tryToRunNextTask();
+        if (tryToRunNextTask())
+            return;
 
         TextbookLogic.enableAllButtons();
 
@@ -560,9 +562,12 @@ public class MainGui extends LightweightGuiDescription {
         return  channelName + " - " + title;
     }
 
-    public void tryToRunNextTask(){
-        if (!busy && runQueue.size() != 0)
+    public boolean tryToRunNextTask(){
+        if (!busy && runQueue.size() != 0){
             runQueue.poll().run();
+            return true;
+        }
+        return false;
     }
     public void addToQueue(Runnable task){
         runQueue.add(task);

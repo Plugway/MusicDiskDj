@@ -22,7 +22,7 @@ import java.util.List;
 
 
 @Mixin(BookEditScreen.class)
-public abstract class BookEditScreenMixin extends Screen implements IBookEditScreen {
+public abstract class BookEditScreenMixin extends Screen {
     @Shadow
     private int currentPage;
     @Shadow
@@ -44,7 +44,6 @@ public abstract class BookEditScreenMixin extends Screen implements IBookEditScr
 
     @Inject(at = @At("RETURN"), method = "init")
     public void init(CallbackInfo ci) {
-        TextbookLogic.setBookEditScreen((BookEditScreen)(Object)this);
         importButton = ButtonWidget.builder(Text.translatable("musicdiskdj.name.label.button.import"), (button) -> {
 
             pages.clear();
@@ -54,7 +53,7 @@ public abstract class BookEditScreenMixin extends Screen implements IBookEditScr
 
         }).position(this.doneButton.getX(), this.doneButton.getY()+this.doneButton.getHeight()+4)
                 .size(this.doneButton.getWidth(), this.doneButton.getHeight()).build();
-
+        System.out.println("INIT BOOK");
         exportButton = ButtonWidget.builder(Text.translatable("musicdiskdj.name.label.button.export"), (button) -> {
 
             System.out.println("Yay, you exported something(but I don't know what and where)");
@@ -69,6 +68,7 @@ public abstract class BookEditScreenMixin extends Screen implements IBookEditScr
 
         this.addDrawableChild(importButton);
         this.addDrawableChild(exportButton);
+        TextbookLogic.setBookButtons(importButton, exportButton);
     }
     private void exportErrAnim(){
         new Thread(() -> {
@@ -80,13 +80,5 @@ public abstract class BookEditScreenMixin extends Screen implements IBookEditScr
             exportButton.active = true;
             exportButton.setMessage(Text.translatable("musicdiskdj.name.label.button.export"));
         }).start();
-    }
-    public void disableAllMdDjButtons(){
-        exportButton.active = false;
-        importButton.active = false;
-    }
-    public void enableAllMdDjButtons(){
-        exportButton.active = true;
-        importButton.active = true;
     }
 }

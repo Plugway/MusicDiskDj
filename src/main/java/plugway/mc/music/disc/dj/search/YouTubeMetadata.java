@@ -32,7 +32,9 @@ public class YouTubeMetadata {
             statusHandler.getProgressBarHandler().setMaxBumpValue(videoIds.size());
         for(var i = 0; i < videoIds.size(); i++){
             String videoId = videoIds.get(i);
+            int index = i;
             executorService.submit(() -> {
+                System.out.println(index + " thread started with id:" + videoId);
                 try{
                     if (useStatusHandler)
                         statusHandler.getProgressBarHandler().bump();
@@ -47,19 +49,20 @@ public class YouTubeMetadata {
                     String line;
                     String[] videoInfo = new String[5];
                     process.waitFor();
-                    int index = 0;
+                    int localIndex = 0;
                     while ((line = reader.readLine()) != null) {
-                        videoInfo[index++] = line;
+                        videoInfo[localIndex++] = line;
                     }
                     Track track = YouTubeTrack.builder()
                             .url(videoUrl)
                             .title(videoInfo[0])
                             .trackMetadata(YouTubeTrackMetadata.of(videoInfo[3], "", Long.parseLong(videoInfo[4]), videoInfo[2].split("\\?")[0]))
                             .duration(Duration.ofSeconds(Long.parseLong(videoInfo[1]))).build();
-                    trackList.set(videoIds.indexOf(videoId), track);
+                    trackList.set(index, track);
                 }catch (Exception e){
-                    trackList.set(videoIds.indexOf(videoId), MusicSearchProvider.getEmptyTrack());
+                    trackList.set(index, MusicSearchProvider.getEmptyTrack());
                 }
+                System.out.println(index + " thread ended with result:" + trackList.get(index).toString());
             });
         }
         executorService.shutdown();

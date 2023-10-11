@@ -2,7 +2,7 @@ package plugway.mc.music.disc.dj.books;
 
 
 import net.minecraft.client.gui.screen.ingame.BookEditScreen;
-import plugway.mc.music.disc.dj.mixin.IBookEditScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import plugway.mc.music.disc.dj.search.LinkValidator;
 
 
@@ -12,15 +12,31 @@ import java.util.List;
 public class TextbookLogic {
     private static List<String> exported = new ArrayList<>();
     private static boolean awaitingExport = false;
-    private static BookEditScreen bookEditScreen;
-    public static void setBookEditScreen(BookEditScreen screen){
-        bookEditScreen = screen;
+    private static ButtonWidget importButton;
+    private static boolean importButtonActive = true;
+    private static ButtonWidget exportButton;
+    private static boolean exportButtonActive = true;
+    public static void setBookButtons(ButtonWidget widget1, ButtonWidget widget2){
+        importButton = widget1;
+        exportButton = widget2;
+        importButton.active = importButtonActive;
+        exportButton.active = exportButtonActive;
     }
     public static void disableAllButtons(){
-        ((IBookEditScreen) bookEditScreen).disableAllMdDjButtons();
+        importButtonActive = false;
+        exportButtonActive = false;
+        if (importButton == null || exportButton == null)
+            return;
+        importButton.active = false;
+        exportButton.active = false;
     }
     public static void enableAllButtons(){
-        ((IBookEditScreen) bookEditScreen).enableAllMdDjButtons();
+        importButtonActive = true;
+        exportButtonActive = true;
+        if (importButton == null || exportButton == null)
+            return;
+        importButton.active = true;
+        exportButton.active = true;
     }
     public static boolean isAwaitingExport(){
         return awaitingExport;
