@@ -13,22 +13,24 @@ You can find a ready-made build of this mod on the [releases page](https://githu
 
 ---
 TODO:  
-- [ ] <span style="background:#ff4d4f">add import/export through books</span>
 - [x] <span style="background:#ff4d4f">add soundcloud support </span>
 	- [x] sc/yt link label
 	- [ ] parse sc links
+	- [ ] import/export through books
 	- [x] add reconnect button and connection info (Search results from: YT, SC    🔄)
 - [ ] <span style="background:#fff88f">remove garbage code  </span>
-- [ ] <span style="background:#9254de">add global/local music switch</span>
-- [ ] <span style="background:#fff88f">dynamic results count</span>
 - [ ] <span style="background:#d3f8b6">handle all ignored exceptions</span>
-- [ ] <span style="background:#fff88f">Fix freezing when trying to download when yt-dlp is not allowed to access the Internet (try again after a while)</span>
-- [ ] <span style="background:#affad1">add missing cutStringTo();</span>
-- [ ] <span style="background:#affad1">Highlight discs with tracks</span>
-- [ ] <span style="background:#affad1">Fix names issue</span>
-- [ ] <span style="background:#d3f8b6">Disable interactions with results before update completes</span>
-- [ ] <span style="background:#fff88f">Fix special characters in names when exporting</span>
-- [ ] <span style="background:#ff4d4f">Cache tracks with info for faster minor changes in playlist</span>
+	- [ ] <span style="background:#fff88f">Fix freezing when trying to download when yt-dlp is not allowed to access the Internet (try again after a while)</span>
+- [ ] <span style="background:#d3f8b6">directional sound option</span> (low priority)
+- [ ] <span style="background:#fff88f">dynamic results count</span> (low priority)
+- [ ] <span style="background:#d3f8b6">Resource pack is not enabling when created for the first time</span> (low priority)
+- [x] <span style="background:#ff4d4f">Cache tracks with info for faster minor changes in playlist</span>
+- [x] <span style="background:#affad1">add missing cutStringTo();</span>
+- [x] <span style="background:#fff88f">Fix special characters in names when exporting</span>
+- [x] <span style="background:#affad1">Fix names issue</span>
+- [x] <span style="background:#ff4d4f">add import/export through books</span>
+- [x] <span style="background:#d3f8b6">Disable interactions with results before update completes(fixed with different approach)</span>
+- [x] <span style="background:#affad1">Highlight discs with tracks</span>
 - [x] <span style="background:#ff4d4f">Reset mod state when exiting to the main menu</span>
 - [x] <span style="background:#d3f8b6">Disc names do not change after applying changes</span>
 - [x] <span style="background:#40a9ff">read current downloaded songs from resource pack after minecraft reloading(from local config file? to share through books) </span>

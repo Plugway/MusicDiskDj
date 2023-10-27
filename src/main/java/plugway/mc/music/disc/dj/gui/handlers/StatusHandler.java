@@ -40,4 +40,8 @@ public class StatusHandler {
         progressBarHandler.reset();
         statusLabelHandler.reset();
     }
+    public void resetIfLast(){
+        if (this.getProgressBarHandler().isLastSection())
+            reset();
+    }
 }

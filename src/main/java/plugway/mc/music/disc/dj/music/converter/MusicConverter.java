@@ -2,7 +2,9 @@ package plugway.mc.music.disc.dj.music.converter;
 
 
 import io.sfrei.tracksearch.tracks.Track;
+import io.sfrei.tracksearch.tracks.YouTubeTrack;
 import plugway.mc.music.disc.dj.MusicDiskDj;
+import plugway.mc.music.disc.dj.search.LinkValidator;
 
 import java.io.File;
 
@@ -44,13 +46,17 @@ public class MusicConverter {
     }*/
     public static File downloadOgg(Track track, int insteadOfDisk){                         //youtube-dl masterpiece
         //File target = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".weba");
-        File oggTarget = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".ogg");
-        try {
-            Runtime.getRuntime().exec(MusicDiskDj.modDirectoryPath+"\\yt-dlp.exe --extract-audio --audio-format vorbis --output \""+oggTarget.getName().substring(0, oggTarget.getName().length()-4)+"\" "+track.getUrl(),
-                    null, oggTarget.getParentFile()).waitFor();    //make command for mono --postprocessor-args "-ac 1"
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+
+        File oggTarget = track instanceof YouTubeTrack ?
+                new File(MusicDiskDj.cachePath+"\\"+LinkValidator.getYTId(track.getUrl())+".ogg") :
+                new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".ogg");
+        if (!oggTarget.exists())
+            try {
+                Runtime.getRuntime().exec(MusicDiskDj.modDirectoryPath+"\\yt-dlp.exe --extract-audio --audio-format vorbis --output \""+oggTarget.getName().substring(0, oggTarget.getName().length()-4)+"\" "+track.getUrl(),
+                        null, oggTarget.getParentFile()).waitFor();    //make command for mono --postprocessor-args "-ac 1"
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         return oggTarget;
     }
 }

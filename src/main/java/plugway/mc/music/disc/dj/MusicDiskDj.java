@@ -16,6 +16,7 @@ public class MusicDiskDj implements ModInitializer {
     public static final String tempPath = modDirectoryPath+"\\temp";
     public static final String templatePath = modDirectoryPath+"\\template";
     public static final String resultPath = tempPath+"\\result";
+    public static final String cachePath = modDirectoryPath+"\\cache";
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> { OpenMenu.resetGUI(); });

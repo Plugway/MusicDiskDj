@@ -37,6 +37,8 @@ import plugway.mc.music.disc.dj.search.YouTubeMetadata;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
@@ -48,7 +50,7 @@ import java.util.Queue;
 public class MainGui extends LightweightGuiDescription {
     private final int resultsCount = 20;
     private int chosenResult = -1;
-    private boolean busy = false;
+    private boolean busy;
     private Queue<Runnable> runQueue = new LinkedList<>();
     private WTextField searchField = new WTextField(Text.translatable("musicdiskdj.name.field.suggestion"));
     //buttons
@@ -59,6 +61,7 @@ public class MainGui extends LightweightGuiDescription {
     private WButton reconnectButton = new WButton(toText("⟳"));
     private WLabel soundCloudAvaiLable = new WLabel(toText("SoundCloud"));
     private WLabel youTubeAvaiLable = new WLabel(toText("YouTube"));
+    private WScrollPanel resultScrollPanel;
     private WClickablePlainPanel[] results = new WClickablePlainPanel[resultsCount];
     private WSprite[] preview = new WSprite[resultsCount];
     private WLabel[] name = new WLabel[resultsCount];
@@ -68,6 +71,7 @@ public class MainGui extends LightweightGuiDescription {
     private WLabel[] sourceName = new WLabel[resultsCount];
     private List<Track> latestTracks = MusicSearchProvider.getEmptyList(resultsCount);
 
+    private WScrollPanel disksScrollPanel;
     private final int musicDisksCount = MinecraftDiskProvider.musicDisksCount;
     private int chosenMusicDisk = -1;
     private WClickablePlainPanel[] disks = new WClickablePlainPanel[musicDisksCount];
@@ -78,11 +82,6 @@ public class MainGui extends LightweightGuiDescription {
     private Identifier blankTexture = new Identifier("mcmddj", "textures/blank_debug1.png");
     private StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
             new StatusLabelHandler());
-
-
-    private enum inTheAreaOf {
-        results, disks
-    }
 
     public MainGui() {
         busy = true;
@@ -125,21 +124,16 @@ public class MainGui extends LightweightGuiDescription {
 
         WPlainPanel resultPanel = new WPlainPanel();
         resultPanel.setSize(405, 200);
-        WScrollPanel resultScrollPanel = new WScrollPanel(resultPanel);
+        resultScrollPanel = new WScrollPanel(resultPanel);
         resultScrollPanel.setScrollingHorizontally(TriState.FALSE);
-        resultScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0));
+        resultScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
         root.add(resultScrollPanel, resultLabelPanel.getX(), resultLabelPanel.getY()+resultLabelPanel.getHeight()-1, 405, 258);
 
         for (int i = 0; i < resultsCount; i++){
-            Track track = MusicSearchProvider.getEmptyTrack();
-            try {
-                track = latestTracks.get(i);
-            } catch (Exception ignored){}
-            //var isEmptyTrack = MusicSearchProvider.isEmptyTrack(track);
 
             results[i] = new WClickablePlainPanel();
             results[i].setAllowToClick(false);
-            results[i].setOnClick(choose(i, results, inTheAreaOf.results)).onClick(0, 0, GLFW.GLFW_MOUSE_BUTTON_1);
+            results[i].setOnClick(chooseResult(i)).onClick(0, 0, GLFW.GLFW_MOUSE_BUTTON_1);
             preview[i] = new WSprite(blankTexture);
             name[i] = new WLabel(toText(""));
             views[i] = new WLabel(toText(""));
@@ -164,9 +158,9 @@ public class MainGui extends LightweightGuiDescription {
         //MUSIC DISKS BLOCK
         WPlainPanel disksPanel = new WPlainPanel();
         disksPanel.setSize(120, 535);
-        WScrollPanel disksScrollPanel = new WScrollPanel(disksPanel);
+        disksScrollPanel = new WScrollPanel(disksPanel);
         disksScrollPanel.setScrollingHorizontally(TriState.FALSE);
-        disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0));
+        disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));//0xFFa0a0a0));
         root.add(disksScrollPanel, root.getWidth() - 190 - 15, 15, 190, root.getHeight()-30);
 
         for (int i = 0; i < musicDisksCount; i++){
@@ -174,14 +168,14 @@ public class MainGui extends LightweightGuiDescription {
             Disk disk = MinecraftDiskProvider.disks.get(i);
             disks[i] = new WClickablePlainPanel();
             disks[i].setAllowToClick(false);
-            disks[i].setOnClick(choose(i, disks, inTheAreaOf.disks));
+            disks[i].setOnClick(chooseDisk(i));
             disks[i].setAllowToClick(true);
             disksPreview[i] = new WSprite(disk.getId());
-            if (MusicSearchProvider.isEmptyTrack(track)){
-                diskAuthor[i] = new WLabel(toText(disk.getAuthor()));
-                diskName[i] = new WLabel(toText(disk.getName()));
+            if (MusicSearchProvider.isEmptyTrack(track)){//replace with update method
+                diskAuthor[i] = new WLabel(cutStringTo(20, disk.getAuthor()));
+                diskName[i] = new WLabel(cutStringTo(20, disk.getName()));
             } else {
-                diskAuthor[i] = new WLabel(toText(track.getTrackMetadata().getChannelName()));
+                diskAuthor[i] = new WLabel(cutStringTo(20, track.getTrackMetadata().getChannelName()));
                 diskName[i] = new WLabel(cutStringTo(20, track.getTitle()));
             }
             diskAuthor[i].setVerticalAlignment(VerticalAlignment.CENTER);
@@ -198,8 +192,8 @@ public class MainGui extends LightweightGuiDescription {
         disksPanel.add(disksSpacer, 5, musicDisksCount*40, 0, 5); //space after last disk in list 4pixels
 
         //turning on outline / possibly remove?
-        choose(chosenResult, results, inTheAreaOf.results).run();
-        choose(chosenMusicDisk, disks, inTheAreaOf.disks).run();
+        //choose(chosenResult, results, inTheAreaOf.results).run();
+        //choose(chosenMusicDisk, disks, inTheAreaOf.disks).run();
 
 
         //operation buttons and bottom left part
@@ -276,26 +270,26 @@ public class MainGui extends LightweightGuiDescription {
 
         return (red << 16) | (green << 8) | blue;
     }
-
-    public Runnable choose(int index, WClickablePlainPanel[] area, inTheAreaOf areaOf){
+    public Runnable chooseResult(int index){
         return () -> {
-            if (index < 0 || index >= area.length){
-                if (areaOf == inTheAreaOf.results)
-                    chosenResult = -1;
-                else
-                    chosenMusicDisk = -1;
-            }
-            for (int i = 0; i < area.length; i++){          //maybe remove?
-                if(i == index){
-                    area[i].setBackgroundPainter(BackgroundPainter.createColorful(0));
-                    if (areaOf == inTheAreaOf.results)
-                        chosenResult = i;
-                    else
-                        chosenMusicDisk = i;
-                }
-                else
-                    area[i].setBackgroundPainter(null);
-            }
+            if (index == chosenResult)
+                return;
+            if (index < 0 || index >= resultsCount)
+                chosenResult = -1;
+            else
+                chosenResult = index;
+            redrawChosenResult();
+        };
+    }
+    public Runnable chooseDisk(int index){
+        return () -> {
+            if (index == chosenMusicDisk)
+                return;
+            if (index < 0 || index >= musicDisksCount)
+                chosenMusicDisk = -1;
+            else
+                chosenMusicDisk = index;
+            redrawDisks();
         };
     }
     public Runnable performSearch(){
@@ -326,9 +320,9 @@ public class MainGui extends LightweightGuiDescription {
             try {
                 track = latestTracks.get(i);
             } catch (Exception ignored){}
-            var isEmptyTrack = MusicSearchProvider.isEmptyTrack(track);
-            name[i].setText(cutStringTo(42, track.getCleanTitle()));
-            if (!isEmptyTrack){
+
+            if (!MusicSearchProvider.isEmptyTrack(track)){
+                name[i].setText(cutStringTo(50, fixEncoding(track.getCleanTitle())));
                 duration[i].setText(toText(track.durationFormatted()));
                 var ident = PreviewProvider.getIdentifier(track.getTrackMetadata().getThumbNailUrl(), "result_" + i);
                 preview[i].setImage(ident);
@@ -345,6 +339,7 @@ public class MainGui extends LightweightGuiDescription {
 
                 results[i].setAllowToClick(true);
             } else {
+                name[i].setText(toText(""));
                 views[i].setText(toText(""));
                 duration[i].setText(toText(""));
                 sourceName[i].setText(toText(""));
@@ -352,24 +347,49 @@ public class MainGui extends LightweightGuiDescription {
                 channel[i].setText(toText(""));
                 results[i].setAllowToClick(false);
             }
-            results[i].setBackgroundPainter(null);
-            chosenResult = -1;
         }
-        if(statusHandler.getProgressBarHandler().isLastSection())
-            statusHandler.reset();
+        chooseResult(-1).run();
+        statusHandler.resetIfLast();
+    }
+    private void redrawChosenResult(){
+        for (WClickablePlainPanel result: results) {
+            result.setBackgroundPainter(null);
+        }
+        if (chosenResult != -1)
+            results[chosenResult].setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
     }
     private void updateDisks(){
         for (int i = 0; i < musicDisksCount; i++) {
             Track track = musicDisks.get(i);
             Disk disk = MinecraftDiskProvider.disks.get(i);
             if (MusicSearchProvider.isEmptyTrack(track)) {
-                diskAuthor[i].setText(toText(disk.getAuthor()));
-                diskName[i].setText(toText(disk.getName()));
+                diskAuthor[i].setText(cutStringTo(20, disk.getAuthor()));
+                diskName[i].setText(cutStringTo(20, disk.getName()));
             } else {
-                diskAuthor[i].setText(toText(getTrueTitle(track.getCleanTitle(), track.getTrackMetadata().getChannelName()).split(" - ")[0]));
-                diskName[i].setText(cutStringTo(20, getTrueTitle(track.getCleanTitle(), track.getTrackMetadata().getChannelName()).split(" - ")[1]));
+                var trueTitle = getTrueTitle(fixEncoding(track.getCleanTitle()), track.getTrackMetadata().getChannelName());
+                diskAuthor[i].setText(cutStringTo(20, trueTitle.split(" - ")[0]));
+                diskName[i].setText(cutStringTo(20, trueTitle.split(" - ")[1]));
             }
         }
+        redrawDisks();
+    }
+    private void redrawDisks(){
+        boolean atLeastOne = false;
+        for (int i = 0; i < musicDisksCount; i++) {
+            Track track = musicDisks.get(i);
+            if (MusicSearchProvider.isEmptyTrack(track)) {
+                disks[i].setBackgroundPainter(null);
+            } else {
+                atLeastOne = true;
+                disks[i].setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
+            }
+        }
+        if (chosenMusicDisk != -1)
+            disks[chosenMusicDisk].setBackgroundPainter(BackgroundPainter.createColorful(0xFFcbd4e9));//add enum to colors
+        if (atLeastOne)
+            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFa0a0a0));
+        else
+            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
     }
     private Runnable reconnect(){
         return () -> {
@@ -449,8 +469,6 @@ public class MainGui extends LightweightGuiDescription {
                         //dealing with music
                         statusHandler.setStatus(Status.cpDownloadingMusic);
                         File oggTrackFile = MusicConverter.downloadOgg(track, i);
-                        //File oggTrackFile = new File(MusicDiskDj.tempPath+"\\"+trackFile.getName().split("\\.")[0]+".ogg");
-                        //converter.mp3ToOgg(trackFile, oggTrackFile);
                         FileUtils.copyFile(oggTrackFile, new File(MusicDiskDj.resultPath+
                                 "\\assets\\minecraft\\sounds\\records\\"+ MinecraftDiskProvider.disks.get(i).getName().toLowerCase()+".ogg"));
 
@@ -483,7 +501,7 @@ public class MainGui extends LightweightGuiDescription {
                     statusHandler.setStatus(1.0/4*2);
                     ResourcePackHandler.DisableResourcePack("file/mcmddj_result.zip");
                     FileUtils.copyFile(outputArchive, new File(MusicDiskDj.mcDirectoryPath+"\\resourcepacks\\mcmddj_result.zip"));
-                    ResourcePackHandler.EnableResourcePack("file/mcmddj_result.zip");
+                    ResourcePackHandler.EnableResourcePack("file/mcmddj_result.zip");//fix needed, resource pack is not enabling when created for the first time
 
                     //saving config and updating disks
                     ConfigurationManager.saveConfig();
@@ -497,7 +515,6 @@ public class MainGui extends LightweightGuiDescription {
                     statusHandler.reset();
                     setNotBusy();
                 } catch (Exception e){e.printStackTrace();}
-
             });
             creationThread.start();
         };
@@ -507,7 +524,7 @@ public class MainGui extends LightweightGuiDescription {
             string = string.substring(0,charNum) + "...";
         return toText(string);
     }
-    private Text toPrettyString(Long number, String endsWith){//move somewhere else
+    private Text toPrettyString(Long number, String endsWith){//move somewhere else / rename with toPrettyNumber
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
         symbols.setGroupingSeparator(' ');
         DecimalFormat formatter = new DecimalFormat("###,###", symbols);
@@ -560,6 +577,12 @@ public class MainGui extends LightweightGuiDescription {
         if (title.contains("-"))
             return title.replaceFirst("-", " - ");
         return  channelName + " - " + title;
+    }
+    private String fixEncoding(String input){
+        try {
+            return new String(input.getBytes("windows-1251"), StandardCharsets.UTF_8);
+        } catch (Exception ignored){}
+        return input;
     }
 
     public boolean tryToRunNextTask(){
