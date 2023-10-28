@@ -12,7 +12,16 @@ You can find a ready-made build of this mod on the [releases page](https://githu
 ## Dev Section
 
 ---
-TODO:  
+### How to Build this "Amazing" Project
+1. First, clone the repository for yourself.
+2. Open it as a project in your IDE. Don't worry, it'll probably take forever to load. Just grab a cup of coffee and contemplate your life choices.
+3. Now comes the fun part: try to build the project! But guess what? Nothing works! Surprise, surprise! Enjoy deciphering those cryptic error messages for the next 6 hours. Good luck!
+4. After countless moments of frustration, confusion, and questioning your existence, you might start to understand why nothing works. Or maybe not. Who knows? It's all part of the adventure!
+5. Spend another eternity re-reading guides, searching Stack Overflow, and banging your head against the keyboard. Just when you think you're close to giving up, try reopening the project. Miraculously, it might actually build this time. Or not. The suspense is killing you, isn't it?
+6. Finally, after what feels like a lifetime of pain and suffering, you manage to build the project. Congratulations! You deserve a medal for surviving this ordeal. Now go celebrate with some ice cream or a stiff drink. You've earned it.
+
+---
+### TODO:  
 - [x] <span style="background:#ff4d4f">add soundcloud support </span>
 	- [x] sc/yt link label
 	- [ ] parse sc links
