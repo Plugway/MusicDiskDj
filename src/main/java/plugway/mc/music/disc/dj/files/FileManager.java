@@ -1,5 +1,6 @@
 package plugway.mc.music.disc.dj.files;
 
+import com.ibm.icu.impl.Assert;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.lingala.zip4j.ZipFile;
@@ -13,6 +14,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.image.PreviewProvider;
 
@@ -44,7 +46,8 @@ public class FileManager {
                 try {
                     modPath = Path.of(codeSource.getLocation().toURI());
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    MusicDiskDj.LOGGER.severe("Something went seriously wrong and I don’t know what, honestly: " + e);
+                    MusicDiskDj.LOGGER.severe("Stack trace: " + ExceptionUtils.getStackTrace(e));
                 }
             }
             if (modPath.toString().trim().endsWith(".jar")){
@@ -70,6 +73,8 @@ public class FileManager {
                     }
                     inputStream.close();
                 } catch (Exception e){
+                    MusicDiskDj.LOGGER.severe("Something went seriously wrong and I don’t know what, honestly: " + e);
+                    MusicDiskDj.LOGGER.severe("Stack trace: " + ExceptionUtils.getStackTrace(e));
                     result = false;
                 }
             } else {//WHY is it here        idk maybe 6 month after: it's for ide
@@ -95,9 +100,9 @@ public class FileManager {
                 IOUtils.copy(inputStream, new FileOutputStream(curfile));
             }
         } catch (Exception e){
+            MusicDiskDj.LOGGER.severe("Error while extracting files: " + e);
+            MusicDiskDj.LOGGER.severe("Stack trace: " + ExceptionUtils.getStackTrace(e));
             result = false;
-            System.out.println("error while extracting files");
-            e.printStackTrace();
         }
         return result;
     }

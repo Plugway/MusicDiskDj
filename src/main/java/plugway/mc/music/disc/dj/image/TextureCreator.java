@@ -1,5 +1,6 @@
 package plugway.mc.music.disc.dj.image;
 
+import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.image.colorThief.ColorThief;
 
 import javax.imageio.ImageIO;
@@ -7,6 +8,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.io.IOException;
 
 public class TextureCreator {
     public static void modifyTexture(Image preview, File textureFile){
@@ -35,7 +37,9 @@ public class TextureCreator {
                 }
             }
             ImageIO.write(bufferedTexture, "png", textureFile);
-        } catch (Exception ignored){}
+        } catch (IOException e) {
+            MusicDiskDj.LOGGER.warning("Error while reading/writing texture: " + e);
+        }
     }
 
     private static BufferedImage toBufferedImage(Image img){

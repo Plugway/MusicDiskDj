@@ -3,10 +3,12 @@ package plugway.mc.music.disc.dj.music.converter;
 
 import io.sfrei.tracksearch.tracks.Track;
 import io.sfrei.tracksearch.tracks.YouTubeTrack;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.search.LinkValidator;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MusicConverter {
     /*private static final int channels = 1;                                //jave garbage
@@ -54,8 +56,9 @@ public class MusicConverter {
             try {
                 Runtime.getRuntime().exec(MusicDiskDj.modDirectoryPath+"\\yt-dlp.exe --extract-audio --audio-format vorbis --output \""+oggTarget.getName().substring(0, oggTarget.getName().length()-4)+"\" "+track.getUrl(),
                         null, oggTarget.getParentFile()).waitFor();    //make command for mono --postprocessor-args "-ac 1"
-            } catch (Exception e){
-                e.printStackTrace();
+            } catch (IOException | InterruptedException e){
+                MusicDiskDj.LOGGER.severe("Something went seriously wrong when downloading music via yt-dlp: " + e);
+                MusicDiskDj.LOGGER.severe("Stack trace: " + ExceptionUtils.getStackTrace(e));
             }
         return oggTarget;
     }

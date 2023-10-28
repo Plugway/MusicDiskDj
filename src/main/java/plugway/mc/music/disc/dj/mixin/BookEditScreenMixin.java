@@ -11,10 +11,13 @@ import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import plugway.mc.music.disc.dj.MusicDiskDj;
+import plugway.mc.music.disc.dj.books.ExportException;
 import plugway.mc.music.disc.dj.books.TextbookLogic;
 import plugway.mc.music.disc.dj.config.ConfigurationManager;
 
@@ -60,7 +63,8 @@ public abstract class BookEditScreenMixin extends Screen {
 
             try {
                 TextbookLogic.setExported(pages);
-            } catch (Exception e){
+            } catch (ExportException e){
+                MusicDiskDj.LOGGER.info("Error when exporting ids from book: " + e);
                 exportErrAnim();
             }
         }).position(this.signButton.getX(), this.signButton.getY()+this.signButton.getHeight()+4)
@@ -70,13 +74,16 @@ public abstract class BookEditScreenMixin extends Screen {
         this.addDrawableChild(exportButton);
         TextbookLogic.setBookButtons(importButton, exportButton);
     }
+    @Unique
     private void exportErrAnim(){
         new Thread(() -> {
             exportButton.active = false;
             exportButton.setMessage(Text.translatable("musicdiskdj.name.error"));
             try {
                 Thread.sleep(500);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException e) {
+                MusicDiskDj.LOGGER.info("Animation interrupted.");
+            }
             exportButton.active = true;
             exportButton.setMessage(Text.translatable("musicdiskdj.name.label.button.export"));
         }).start();

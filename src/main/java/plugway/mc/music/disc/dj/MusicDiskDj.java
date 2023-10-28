@@ -8,9 +8,11 @@ import plugway.mc.music.disc.dj.files.FileManager;
 import plugway.mc.music.disc.dj.keybinds.OpenMenu;
 
 import java.io.File;
+import java.util.logging.Logger;
+
 
 public class MusicDiskDj implements ModInitializer {
-
+    public static final Logger LOGGER = Logger.getLogger("MCMDDJ");
     public static final String mcDirectoryPath = MinecraftClient.getInstance().runDirectory.toPath().normalize().toString();
     public static final String modDirectoryPath = mcDirectoryPath+"\\musicDiskDj";
     public static final String tempPath = modDirectoryPath+"\\temp";

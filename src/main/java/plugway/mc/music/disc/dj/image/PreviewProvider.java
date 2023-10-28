@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
+import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.files.FileManager;
 import plugway.mc.music.disc.dj.gui.MainGui;
 
@@ -26,7 +27,7 @@ public class PreviewProvider {
         try (InputStream stream = new URL(previewUrl).openStream()) {
             preview = ImageIO.read(stream);
         } catch (IOException e) {
-            System.out.println("Error while reading image: " + previewUrl);
+            MusicDiskDj.LOGGER.warning("Error while reading image: " + previewUrl);
             return new Identifier("mcmddj", "textures/blank.png");
         }
         preview = trimImage(preview);                                                                                   //trim

@@ -13,11 +13,13 @@ import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.lwjgl.glfw.GLFW;
 import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.books.TextbookLogic;
 import plugway.mc.music.disc.dj.config.ConfigurationManager;
 import plugway.mc.music.disc.dj.files.FileManager;
+import plugway.mc.music.disc.dj.gui.color.Colors;
 import plugway.mc.music.disc.dj.gui.handlers.ProgressBarHandler;
 import plugway.mc.music.disc.dj.gui.handlers.Status;
 import plugway.mc.music.disc.dj.gui.handlers.StatusHandler;
@@ -37,8 +39,7 @@ import plugway.mc.music.disc.dj.search.YouTubeMetadata;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
@@ -108,12 +109,12 @@ public class MainGui extends LightweightGuiDescription {
         reconnectButton.setOnClick(reconnect());
         WLabel commaLabel = new WLabel(toText(", "));
         soundCloudAvaiLable.setVerticalAlignment(VerticalAlignment.CENTER);
-        soundCloudAvaiLable.setColor(0xFFFFFF);
+        soundCloudAvaiLable.setColor(Colors.White.getColor());
         soundCloudAvaiLable.setSize(56, resultLabelPanel.getHeight()-2);
         commaLabel.setVerticalAlignment(VerticalAlignment.CENTER);
         commaLabel.setSize(6, resultLabelPanel.getHeight()-2);
         youTubeAvaiLable.setVerticalAlignment(VerticalAlignment.CENTER);
-        youTubeAvaiLable.setColor(0xFFFFFF);
+        youTubeAvaiLable.setColor(Colors.White.getColor());
         youTubeAvaiLable.setSize(42, resultLabelPanel.getHeight()-2);
         resultLabelPanel.add(resultLabel, 4, 2, resultLabelPanel.getWidth()-8, resultLabelPanel.getHeight()-2);
         resultLabelPanel.add(reconnectButton, resultLabelPanel.getWidth()-20, 1, 20, 20);
@@ -126,7 +127,7 @@ public class MainGui extends LightweightGuiDescription {
         resultPanel.setSize(405, 200);
         resultScrollPanel = new WScrollPanel(resultPanel);
         resultScrollPanel.setScrollingHorizontally(TriState.FALSE);
-        resultScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
+        resultScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
         root.add(resultScrollPanel, resultLabelPanel.getX(), resultLabelPanel.getY()+resultLabelPanel.getHeight()-1, 405, 258);
 
         for (int i = 0; i < resultsCount; i++){
@@ -160,7 +161,7 @@ public class MainGui extends LightweightGuiDescription {
         disksPanel.setSize(120, 535);
         disksScrollPanel = new WScrollPanel(disksPanel);
         disksScrollPanel.setScrollingHorizontally(TriState.FALSE);
-        disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));//0xFFa0a0a0));
+        disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
         root.add(disksScrollPanel, root.getWidth() - 190 - 15, 15, 190, root.getHeight()-30);
 
         for (int i = 0; i < musicDisksCount; i++){
@@ -223,9 +224,9 @@ public class MainGui extends LightweightGuiDescription {
     }
 
     private void animateSearchFieldText() {
-        int suggestionColor = 0x808080;
-        int minColor = 0x0A0A0A;
-        int maxColor = 0xF0F0F0;
+        int suggestionColor = Colors.Gray50.getColor();
+        int minColor = Colors.Black4.getColor();
+        int maxColor = Colors.LightGray94.getColor();
         int shiftValue = 10;
         int currentColor = suggestionColor;
         int sleepTime = 50;
@@ -254,12 +255,14 @@ public class MainGui extends LightweightGuiDescription {
                     Thread.sleep(sleepTime);
                 }
             }
-        } catch (Exception e){
+        } catch (InterruptedException e){
+            MusicDiskDj.LOGGER.info("Animation interrupted.");
             searchField.setSuggestionColor(suggestionColor);
             searchField.setSuggestion(Text.translatable("musicdiskdj.name.field.suggestion"));
         }
     }
     private static int shiftColor(int value, int color){//move to color utils
+        int alpha = (color >> 24) & 0xFF;
         int red = (color >> 16) & 0xFF;
         int green = (color >> 8) & 0xFF;
         int blue = color & 0xFF;
@@ -268,7 +271,7 @@ public class MainGui extends LightweightGuiDescription {
         green += value;
         blue += value;
 
-        return (red << 16) | (green << 8) | blue;
+        return (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
     public Runnable chooseResult(int index){
         return () -> {
@@ -316,12 +319,9 @@ public class MainGui extends LightweightGuiDescription {
         statusHandler.getProgressBarHandler().nextSection();
         for (int i = 0; i < resultsCount; i++){
             statusHandler.setStatus((i+1d)/resultsCount);
-            Track track = MusicSearchProvider.getEmptyTrack();
-            try {
-                track = latestTracks.get(i);
-            } catch (Exception ignored){}
 
-            if (!MusicSearchProvider.isEmptyTrack(track)){
+            if (i < latestTracks.size()){
+                Track track = latestTracks.get(i);
                 name[i].setText(cutStringTo(50, fixEncoding(track.getCleanTitle())));
                 duration[i].setText(toText(track.durationFormatted()));
                 var ident = PreviewProvider.getIdentifier(track.getTrackMetadata().getThumbNailUrl(), "result_" + i);
@@ -330,13 +330,12 @@ public class MainGui extends LightweightGuiDescription {
                 if(track.getSource() == TrackSource.Youtube){
                     views[i].setText(toPrettyString(track.getTrackMetadata().getStreamAmount(), " views"));
                     sourceName[i].setText(toText("YouTube"));
-                    sourceName[i].setColor(0xc90000);
+                    sourceName[i].setColor(Colors.RedYT.getColor());
                 } else {
                     views[i].setText(toPrettyString(track.getTrackMetadata().getStreamAmount(), " plays"));
                     sourceName[i].setText(toText("SoundCloud"));
-                    sourceName[i].setColor(0xc94200);
+                    sourceName[i].setColor(Colors.BrownSC.getColor());
                 }
-
                 results[i].setAllowToClick(true);
             } else {
                 name[i].setText(toText(""));
@@ -356,7 +355,7 @@ public class MainGui extends LightweightGuiDescription {
             result.setBackgroundPainter(null);
         }
         if (chosenResult != -1)
-            results[chosenResult].setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
+            results[chosenResult].setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
     }
     private void updateDisks(){
         for (int i = 0; i < musicDisksCount; i++) {
@@ -381,15 +380,15 @@ public class MainGui extends LightweightGuiDescription {
                 disks[i].setBackgroundPainter(null);
             } else {
                 atLeastOne = true;
-                disks[i].setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
+                disks[i].setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
             }
         }
         if (chosenMusicDisk != -1)
-            disks[chosenMusicDisk].setBackgroundPainter(BackgroundPainter.createColorful(0xFFcbd4e9));//add enum to colors
+            disks[chosenMusicDisk].setBackgroundPainter(BackgroundPainter.createColorful(Colors.PastelBlue.getColor()));
         if (atLeastOne)
-            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFa0a0a0));
+            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.Gray63.getColor()));
         else
-            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFFc6c6c6));
+            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
     }
     private Runnable reconnect(){
         return () -> {
@@ -421,6 +420,9 @@ public class MainGui extends LightweightGuiDescription {
             updateDisks();
             removeButton.setEnabled(true);
         };
+    }
+    private void cleanDisksList(){
+        musicDisks.replaceAll(track -> MusicSearchProvider.getEmptyTrack());
     }
     public Runnable completeExport(){
         return () -> {
@@ -505,16 +507,32 @@ public class MainGui extends LightweightGuiDescription {
 
                     //saving config and updating disks
                     ConfigurationManager.saveConfig();
+                    cleanDisksList();
                     updateDisks();
 
                     //collecting garbage
                     statusHandler.setStatus(1.0/4*3);
                     FileUtils.cleanDirectory(new File(MusicDiskDj.tempPath));
-                    new File(MusicDiskDj.resultPath).mkdir();
+                    if (!new File(MusicDiskDj.resultPath).mkdir())
+                        throw new IOException();
 
                     statusHandler.reset();
                     setNotBusy();
-                } catch (Exception e){e.printStackTrace();}
+                } catch (IOException e) {
+                    MusicDiskDj.LOGGER.severe("Oh no! Some IO error occurred in the process of Resource Pack creation: " + e);
+                    MusicDiskDj.LOGGER.severe("Stack trace: " + ExceptionUtils.getStackTrace(e));
+                    ConfigurationManager.saveConfig();
+                    cleanDisksList();
+                    updateDisks();
+                    try {
+                        FileUtils.cleanDirectory(new File(MusicDiskDj.tempPath));
+                        if (!new File(MusicDiskDj.resultPath).mkdir())
+                            throw new IOException();
+                    } catch (IOException ex) {
+                        MusicDiskDj.LOGGER.severe("Error while deleting temp files: " + e);
+                    }
+                    statusHandler.reset();
+                }
             });
             creationThread.start();
         };
@@ -559,16 +577,16 @@ public class MainGui extends LightweightGuiDescription {
         reconnectButton.setEnabled(true);
     }
     public void colorYTConnected(){
-        youTubeAvaiLable.setColor(0xc90000);
+        youTubeAvaiLable.setColor(Colors.RedYT.getColor());
     }//move somewhere else
     public void colorYTFailedToConnect(){
-        youTubeAvaiLable.setColor(0xffffff);
+        youTubeAvaiLable.setColor(Colors.White.getColor());
     }//move somewhere else
     public void colorSCConnected(){
-        soundCloudAvaiLable.setColor(0xc94200);
+        soundCloudAvaiLable.setColor(Colors.BrownSC.getColor());
     }//move somewhere else
     public void colorSCFailedToConnect(){
-        soundCloudAvaiLable.setColor(0xffffff);
+        soundCloudAvaiLable.setColor(Colors.White.getColor());
     }//move somewhere else
 
     private String getTrueTitle(String title, String channelName){//move somewhere else
@@ -581,7 +599,7 @@ public class MainGui extends LightweightGuiDescription {
     private String fixEncoding(String input){
         try {
             return new String(input.getBytes("windows-1251"), StandardCharsets.UTF_8);
-        } catch (Exception ignored){}
+        } catch (Exception ignored){}       //Never occurs
         return input;
     }
 

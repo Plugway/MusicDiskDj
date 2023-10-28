@@ -45,22 +45,23 @@ public class TextbookLogic {
         exported = new ArrayList<>();
         awaitingExport = false;
     }
-    public static void setExported(List<String> exported) throws Exception {
-        if (!isValid(exported))
-            throw new Exception();
+    public static void setExported(List<String> exported) throws ExportException {
+        var invalidId = isValid(exported);
+        if (!invalidId.equals(""))
+            throw new ExportException("Invalid Id: " + invalidId);
         TextbookLogic.exported = exported;
         awaitingExport = true;
     }
     public static List<String> getExported(){
         return exported;
     }
-    private static boolean isValid(List<String> exported){
-        boolean res = true;
+    private static String isValid(List<String> exported){
+        String res = "";
         for (String id:exported) {
             if (id.equals(""))
                 continue;
             if (!LinkValidator.isValidYTId(id)) {
-                res = false;
+                res = id;
                 break;
             }
         }

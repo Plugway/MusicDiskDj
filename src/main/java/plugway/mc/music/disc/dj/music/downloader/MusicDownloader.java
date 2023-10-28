@@ -2,9 +2,12 @@ package plugway.mc.music.disc.dj.music.downloader;
 
 import io.sfrei.tracksearch.tracks.Track;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import plugway.mc.music.disc.dj.MusicDiskDj;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 
@@ -22,8 +25,9 @@ public class MusicDownloader {
         File file = new File(MusicDiskDj.tempPath+"\\"+insteadOfDisk+"_"+track.getCleanTitle()+".jpeg");
         try {
             FileUtils.copyURLToFile(new URL(track.getTrackMetadata().getThumbNailUrl()), file);
-        } catch (Exception e){
-            System.out.println("error when trying to download");
+        } catch (IOException e){
+            MusicDiskDj.LOGGER.severe("Error while downloading texture: " + e);
+            MusicDiskDj.LOGGER.severe("Stack trace: " + ExceptionUtils.getStackTrace(e));
         }
         return file;
     }

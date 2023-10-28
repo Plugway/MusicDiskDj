@@ -3,6 +3,7 @@ package plugway.mc.music.disc.dj.search;
 import io.sfrei.tracksearch.tracks.Track;
 import io.sfrei.tracksearch.tracks.YouTubeTrack;
 import io.sfrei.tracksearch.tracks.metadata.YouTubeTrackMetadata;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.gui.handlers.StatusHandler;
 
@@ -59,7 +60,8 @@ public class YouTubeMetadata {
                             .trackMetadata(YouTubeTrackMetadata.of(videoInfo[3], "", Long.parseLong(videoInfo[4]), videoInfo[2].split("\\?")[0]))
                             .duration(Duration.ofSeconds(Long.parseLong(videoInfo[1]))).build();
                     trackList.set(index, track);
-                }catch (Exception e){
+                }catch (Exception e){   //checked
+                    MusicDiskDj.LOGGER.info("Skipping track: " + videoId + ", more info: " + e);
                     trackList.set(index, MusicSearchProvider.getEmptyTrack());
                 }
                 System.out.println(index + " thread ended with result:" + trackList.get(index).toString());
@@ -69,7 +71,8 @@ public class YouTubeMetadata {
         try {
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            MusicDiskDj.LOGGER.warning("Interrupted while getting tracks info: " + e);
+            MusicDiskDj.LOGGER.warning("Stack trace: " + ExceptionUtils.getStackTrace(e));
         }
         return trackList;
     }

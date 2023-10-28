@@ -2,7 +2,9 @@ package plugway.mc.music.disc.dj.search;
 
 import io.sfrei.tracksearch.clients.soundcloud.SoundCloudClient;
 import io.sfrei.tracksearch.clients.youtube.YouTubeClient;
+import io.sfrei.tracksearch.exceptions.TrackSearchException;
 import io.sfrei.tracksearch.tracks.*;
+import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.gui.MainGui;
 import plugway.mc.music.disc.dj.gui.handlers.Status;
 import plugway.mc.music.disc.dj.gui.handlers.StatusHandler;
@@ -33,14 +35,18 @@ public class MusicSearchProvider {
                 //System.out.println("cool sc link: " + query);
             }
             if (clientYT == null && clientSC == null)
-                throw new Exception();
+                throw new NullClientsException("0 clients connected");
             if (clientYT != null)
                 trackListYT = new ArrayList<>(clientYT.getTracksForSearch(query));
             if (clientSC != null)
                 trackListSC = new ArrayList<>(clientSC.getTracksForSearch(query));
             return  mergeTrackList(trackListYT, trackListSC);
-        } catch (Exception e){//don't stop if one of searches is unsuccessful (connected earlier but now fail)
-            System.out.println("Search failed!");
+        } catch (TrackSearchException | NullClientsException e){
+            if (e instanceof TrackSearchException) {
+                MusicDiskDj.LOGGER.info("Search failed: " + e);
+            } else {
+                MusicDiskDj.LOGGER.info("All clients are null, try to reconnect: " + e);
+            }
             if (failedSearch.size() == 0)
                 failedSearch.add(failedTrack);
             return failedSearch;
@@ -97,10 +103,11 @@ public class MusicSearchProvider {
             }
             if (clientYTThread.isAlive()){
                 clientYTThread.stop();
-                throw new Exception();
+                throw new ClientConnectException("YT client connect error");
             }
             gui.colorYTConnected();
-        } catch (Exception e){
+        } catch (ClientConnectException | InterruptedException e){
+            MusicDiskDj.LOGGER.info("Error while connecting: " + e);
             clientYT = null;
             gui.colorYTFailedToConnect();
         }
@@ -119,10 +126,11 @@ public class MusicSearchProvider {
             }
             if (clientSCThread.isAlive()){
                 clientSCThread.stop();
-                throw new Exception();
+                throw new ClientConnectException("SC client connect error");
             }
             gui.colorSCConnected();
-        } catch (Exception e){
+        } catch (ClientConnectException | InterruptedException e){
+            MusicDiskDj.LOGGER.info("Error while connecting: " + e);
             clientSC = null;
             gui.colorSCFailedToConnect();
         }
