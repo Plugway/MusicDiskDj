@@ -1,11 +1,7 @@
 package plugway.mc.music.disc.dj.music.disks;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.resource.language.LanguageManager;
-import net.minecraft.client.resource.language.TranslationStorage;
 import net.minecraft.item.MusicDiscItem;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.awt.*;
@@ -25,7 +21,6 @@ public class Disk {
     public String getName() {
         return I18n.translate(disk.getTranslationKey()+".desc").split(" - ")[1];
     }
-
     public Identifier getId(){
         return id;
     }

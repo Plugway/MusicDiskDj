@@ -20,6 +20,7 @@ import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.books.ExportException;
 import plugway.mc.music.disc.dj.books.TextbookLogic;
 import plugway.mc.music.disc.dj.config.ConfigurationManager;
+import plugway.mc.music.disc.dj.gui.animation.AnimCollection;
 
 import java.util.List;
 
@@ -56,16 +57,13 @@ public abstract class BookEditScreenMixin extends Screen {
 
         }).position(this.doneButton.getX(), this.doneButton.getY()+this.doneButton.getHeight()+4)
                 .size(this.doneButton.getWidth(), this.doneButton.getHeight()).build();
-        System.out.println("INIT BOOK");
         exportButton = ButtonWidget.builder(Text.translatable("musicdiskdj.name.label.button.export"), (button) -> {
-
-            System.out.println("Yay, you exported something(but I don't know what and where)");
-
             try {
                 TextbookLogic.setExported(pages);
+                AnimCollection.exportDoneAnimAsync(exportButton);
             } catch (ExportException e){
                 MusicDiskDj.LOGGER.info("Error when exporting ids from book: " + e);
-                exportErrAnim();
+                AnimCollection.exportErrAnimAsync(exportButton);
             }
         }).position(this.signButton.getX(), this.signButton.getY()+this.signButton.getHeight()+4)
                 .size(this.signButton.getWidth(), this.signButton.getHeight()).build();
@@ -73,19 +71,5 @@ public abstract class BookEditScreenMixin extends Screen {
         this.addDrawableChild(importButton);
         this.addDrawableChild(exportButton);
         TextbookLogic.setBookButtons(importButton, exportButton);
-    }
-    @Unique
-    private void exportErrAnim(){
-        new Thread(() -> {
-            exportButton.active = false;
-            exportButton.setMessage(Text.translatable("musicdiskdj.name.error"));
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                MusicDiskDj.LOGGER.info("Animation interrupted.");
-            }
-            exportButton.active = true;
-            exportButton.setMessage(Text.translatable("musicdiskdj.name.label.button.export"));
-        }).start();
     }
 }

@@ -19,15 +19,17 @@ import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.books.TextbookLogic;
 import plugway.mc.music.disc.dj.config.ConfigurationManager;
 import plugway.mc.music.disc.dj.files.FileManager;
+import plugway.mc.music.disc.dj.files.GarbageRemover;
+import plugway.mc.music.disc.dj.gui.animation.AnimCollection;
 import plugway.mc.music.disc.dj.gui.color.Colors;
 import plugway.mc.music.disc.dj.gui.handlers.ProgressBarHandler;
 import plugway.mc.music.disc.dj.gui.handlers.Status;
 import plugway.mc.music.disc.dj.gui.handlers.StatusHandler;
 import plugway.mc.music.disc.dj.gui.handlers.StatusLabelHandler;
+import plugway.mc.music.disc.dj.gui.text.TextUtils;
 import plugway.mc.music.disc.dj.gui.widgets.WClickablePlainPanel;
 import plugway.mc.music.disc.dj.image.PreviewProvider;
 import plugway.mc.music.disc.dj.image.TextureCreator;
-import plugway.mc.music.disc.dj.music.converter.MusicConverter;
 import plugway.mc.music.disc.dj.music.disks.Disk;
 import plugway.mc.music.disc.dj.music.disks.MinecraftDiskProvider;
 import plugway.mc.music.disc.dj.music.downloader.MusicDownloader;
@@ -36,14 +38,15 @@ import plugway.mc.music.disc.dj.search.LinkValidator;
 import plugway.mc.music.disc.dj.search.MusicSearchProvider;
 import plugway.mc.music.disc.dj.search.YouTubeMetadata;
 
+import static plugway.mc.music.disc.dj.gui.text.TextUtils.toText;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -70,7 +73,7 @@ public class MainGui extends LightweightGuiDescription {
     private WLabel[] duration = new WLabel[resultsCount];
     private WLabel[] channel = new WLabel[resultsCount];
     private WLabel[] sourceName = new WLabel[resultsCount];
-    private List<Track> latestTracks = MusicSearchProvider.getEmptyList(resultsCount);
+    private List<Track> latestTracks = new ArrayList<>();
 
     private WScrollPanel disksScrollPanel;
     private final int musicDisksCount = MinecraftDiskProvider.musicDisksCount;
@@ -80,7 +83,7 @@ public class MainGui extends LightweightGuiDescription {
     private WLabel[] diskName = new WLabel[musicDisksCount];
     private WLabel[] diskAuthor = new WLabel[musicDisksCount];
     private List<Track> musicDisks = MusicSearchProvider.getEmptyList(musicDisksCount);
-    private Identifier blankTexture = new Identifier("mcmddj", "textures/blank_debug1.png");
+    private Identifier blankTexture = new Identifier("mcmddj", "textures/blank.png");//"textures/blank_debug1.png");
     private StatusHandler statusHandler = new StatusHandler(new ProgressBarHandler(WBar.Direction.RIGHT, 0, 100),
             new StatusLabelHandler());
 
@@ -173,11 +176,11 @@ public class MainGui extends LightweightGuiDescription {
             disks[i].setAllowToClick(true);
             disksPreview[i] = new WSprite(disk.getId());
             if (MusicSearchProvider.isEmptyTrack(track)){//replace with update method
-                diskAuthor[i] = new WLabel(cutStringTo(20, disk.getAuthor()));
-                diskName[i] = new WLabel(cutStringTo(20, disk.getName()));
+                diskAuthor[i] = new WLabel(TextUtils.cutStringTo(20, disk.getAuthor()));
+                diskName[i] = new WLabel(TextUtils.cutStringTo(20, disk.getName()));
             } else {
-                diskAuthor[i] = new WLabel(cutStringTo(20, track.getTrackMetadata().getChannelName()));
-                diskName[i] = new WLabel(cutStringTo(20, track.getTitle()));
+                diskAuthor[i] = new WLabel(TextUtils.cutStringTo(20, track.getTrackMetadata().getChannelName()));
+                diskName[i] = new WLabel(TextUtils.cutStringTo(20, track.getTitle()));
             }
             diskAuthor[i].setVerticalAlignment(VerticalAlignment.CENTER);
             diskName[i].setVerticalAlignment(VerticalAlignment.CENTER);
@@ -205,7 +208,7 @@ public class MainGui extends LightweightGuiDescription {
         addButton.setOnClick(addTrackToDisks(addButton));
         root.add(addButton, removeButton.getX()-25, removeButton.getY(), 20, 20);
 
-        makeCoolButton.setOnClick(createResourcePack(makeCoolButton, addButton, removeButton, searchButton));
+        makeCoolButton.setOnClick(createResourcePack());
         root.add(makeCoolButton, addButton.getX() - 55, removeButton.getY(), 50, 20);
 
         root.add(statusHandler.getProgressBar(), resultScrollPanel.getX(), removeButton.getY(), 300, 6);
@@ -216,62 +219,11 @@ public class MainGui extends LightweightGuiDescription {
         root.validate(this);
 
         //animation
-        new Thread(this::animateSearchFieldText).start();
+        AnimCollection.animateTextFieldAsync(searchField, Text.translatable("musicdiskdj.name.mcmddj"), 0);
         //connect to services
         busy = false;
         addToQueue(reconnect());
         tryToRunNextTask();
-    }
-
-    private void animateSearchFieldText() {
-        int suggestionColor = Colors.Gray50.getColor();
-        int minColor = Colors.Black4.getColor();
-        int maxColor = Colors.LightGray94.getColor();
-        int shiftValue = 10;
-        int currentColor = suggestionColor;
-        int sleepTime = 50;
-        try {
-            for (int i = 0; i < 3; i++) {
-                while (currentColor > minColor){//fade out suggestion
-                    currentColor = shiftColor(-shiftValue, currentColor);
-                    searchField.setSuggestionColor(currentColor);
-                    Thread.sleep(sleepTime);
-                }
-                searchField.setSuggestion(Text.translatable("musicdiskdj.name.mcmddj"));
-                while (currentColor < maxColor){//fade in mcmddj
-                    currentColor = shiftColor(shiftValue, currentColor);
-                    searchField.setSuggestionColor(currentColor);
-                    Thread.sleep(sleepTime);
-                }
-                while (currentColor > minColor){//fade out mcmddj
-                    currentColor = shiftColor(-shiftValue, currentColor);
-                    searchField.setSuggestionColor(currentColor);
-                    Thread.sleep(sleepTime);
-                }
-                searchField.setSuggestion(Text.translatable("musicdiskdj.name.field.suggestion"));
-                while (currentColor < suggestionColor){//fade in suggestion
-                    currentColor = shiftColor(shiftValue, currentColor);
-                    searchField.setSuggestionColor(currentColor);
-                    Thread.sleep(sleepTime);
-                }
-            }
-        } catch (InterruptedException e){
-            MusicDiskDj.LOGGER.info("Animation interrupted.");
-            searchField.setSuggestionColor(suggestionColor);
-            searchField.setSuggestion(Text.translatable("musicdiskdj.name.field.suggestion"));
-        }
-    }
-    private static int shiftColor(int value, int color){//move to color utils
-        int alpha = (color >> 24) & 0xFF;
-        int red = (color >> 16) & 0xFF;
-        int green = (color >> 8) & 0xFF;
-        int blue = color & 0xFF;
-
-        red += value;
-        green += value;
-        blue += value;
-
-        return (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
     public Runnable chooseResult(int index){
         return () -> {
@@ -322,17 +274,17 @@ public class MainGui extends LightweightGuiDescription {
 
             if (i < latestTracks.size()){
                 Track track = latestTracks.get(i);
-                name[i].setText(cutStringTo(50, fixEncoding(track.getCleanTitle())));
+                name[i].setText(TextUtils.cutStringTo(50, TextUtils.fixEncoding(track.getCleanTitle())));
                 duration[i].setText(toText(track.durationFormatted()));
                 var ident = PreviewProvider.getIdentifier(track.getTrackMetadata().getThumbNailUrl(), "result_" + i);
                 preview[i].setImage(ident);
                 channel[i].setText(toText(track.getTrackMetadata().getChannelName()));
                 if(track.getSource() == TrackSource.Youtube){
-                    views[i].setText(toPrettyString(track.getTrackMetadata().getStreamAmount(), " views"));
+                    views[i].setText(TextUtils.toPrettyNumber(track.getTrackMetadata().getStreamAmount(), " views"));
                     sourceName[i].setText(toText("YouTube"));
                     sourceName[i].setColor(Colors.RedYT.getColor());
                 } else {
-                    views[i].setText(toPrettyString(track.getTrackMetadata().getStreamAmount(), " plays"));
+                    views[i].setText(TextUtils.toPrettyNumber(track.getTrackMetadata().getStreamAmount(), " plays"));
                     sourceName[i].setText(toText("SoundCloud"));
                     sourceName[i].setColor(Colors.BrownSC.getColor());
                 }
@@ -362,12 +314,12 @@ public class MainGui extends LightweightGuiDescription {
             Track track = musicDisks.get(i);
             Disk disk = MinecraftDiskProvider.disks.get(i);
             if (MusicSearchProvider.isEmptyTrack(track)) {
-                diskAuthor[i].setText(cutStringTo(20, disk.getAuthor()));
-                diskName[i].setText(cutStringTo(20, disk.getName()));
+                diskAuthor[i].setText(TextUtils.cutStringTo(20, disk.getAuthor()));
+                diskName[i].setText(TextUtils.cutStringTo(20, disk.getName()));
             } else {
-                var trueTitle = getTrueTitle(fixEncoding(track.getCleanTitle()), track.getTrackMetadata().getChannelName());
-                diskAuthor[i].setText(cutStringTo(20, trueTitle.split(" - ")[0]));
-                diskName[i].setText(cutStringTo(20, trueTitle.split(" - ")[1]));
+                var trueTitle = TextUtils.getTrueTitle(TextUtils.fixEncoding(track.getCleanTitle()), track.getTrackMetadata().getChannelName());
+                diskAuthor[i].setText(TextUtils.cutStringTo(20, trueTitle.split(" - ")[0]));
+                diskName[i].setText(TextUtils.cutStringTo(20, trueTitle.split(" - ")[1]));
             }
         }
         redrawDisks();
@@ -449,7 +401,7 @@ public class MainGui extends LightweightGuiDescription {
             exportThread.start();
         };
     }
-    private Runnable createResourcePack(WButton makeCoolButton, WButton addButton, WButton removeButton, WButton searchButton){
+    private Runnable createResourcePack(){
         return () -> {
             setBusy();
             Thread creationThread = new Thread(() -> {
@@ -470,7 +422,7 @@ public class MainGui extends LightweightGuiDescription {
 
                         //dealing with music
                         statusHandler.setStatus(Status.cpDownloadingMusic);
-                        File oggTrackFile = MusicConverter.downloadOgg(track, i);
+                        File oggTrackFile = MusicDownloader.downloadTrack(track, i);
                         FileUtils.copyFile(oggTrackFile, new File(MusicDiskDj.resultPath+
                                 "\\assets\\minecraft\\sounds\\records\\"+ MinecraftDiskProvider.disks.get(i).getName().toLowerCase()+".ogg"));
 
@@ -482,14 +434,15 @@ public class MainGui extends LightweightGuiDescription {
                                 "\\assets\\minecraft\\"+ MinecraftDiskProvider.disks.get(i).getId().toString().split(":")[1]));
 
                         //dealing with names
-                        langFileContent = langFileContent.replaceAll(MinecraftDiskProvider.disks.get(i).getAuthor()+" - "+
-                                MinecraftDiskProvider.disks.get(i).getName(), getTrueTitle(track.getCleanTitle(), track.getTrackMetadata().getChannelName()));
+                        langFileContent = langFileContent.replaceAll(
+                                MinecraftDiskProvider.disks.get(i).getAuthor()+" - "+ MinecraftDiskProvider.disks.get(i).getName(),
+                                TextUtils.getTrueTitle(track.getCleanTitle(), track.getTrackMetadata().getChannelName()));
 
                         //adding to config
                         if (track instanceof YouTubeTrack)
                             ConfigurationManager.set(LinkValidator.getYTId(track.getUrl()), i);
                         if (track instanceof SoundCloudTrack)
-                            System.out.println("SC track config");//implementation needed
+                            MusicDiskDj.LOGGER.info("SC track config not implemented");//implementation needed
                     }
                     statusHandler.getProgressBarHandler().nextSection();
                     FileUtils.write(langFile, langFileContent, Charset.defaultCharset());
@@ -512,7 +465,7 @@ public class MainGui extends LightweightGuiDescription {
 
                     //collecting garbage
                     statusHandler.setStatus(1.0/4*3);
-                    FileUtils.cleanDirectory(new File(MusicDiskDj.tempPath));
+                    GarbageRemover.remove();
                     if (!new File(MusicDiskDj.resultPath).mkdir())
                         throw new IOException();
 
@@ -525,7 +478,7 @@ public class MainGui extends LightweightGuiDescription {
                     cleanDisksList();
                     updateDisks();
                     try {
-                        FileUtils.cleanDirectory(new File(MusicDiskDj.tempPath));
+                        GarbageRemover.remove();
                         if (!new File(MusicDiskDj.resultPath).mkdir())
                             throw new IOException();
                     } catch (IOException ex) {
@@ -537,20 +490,6 @@ public class MainGui extends LightweightGuiDescription {
             creationThread.start();
         };
     }
-    private Text cutStringTo(int charNum, String string){//move somewhere else
-        if (string.length() > charNum)
-            string = string.substring(0,charNum) + "...";
-        return toText(string);
-    }
-    private Text toPrettyString(Long number, String endsWith){//move somewhere else / rename with toPrettyNumber
-        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
-        symbols.setGroupingSeparator(' ');
-        DecimalFormat formatter = new DecimalFormat("###,###", symbols);
-        return toText(formatter.format(number) + endsWith);
-    }
-    private Text toText(String string){
-        return Text.of(string);
-    }//move somewhere else
     private void setBusy(){
         busy = true;
 
@@ -576,33 +515,12 @@ public class MainGui extends LightweightGuiDescription {
         searchButton.setEnabled(true);
         reconnectButton.setEnabled(true);
     }
-    public void colorYTConnected(){
-        youTubeAvaiLable.setColor(Colors.RedYT.getColor());
-    }//move somewhere else
-    public void colorYTFailedToConnect(){
-        youTubeAvaiLable.setColor(Colors.White.getColor());
-    }//move somewhere else
-    public void colorSCConnected(){
-        soundCloudAvaiLable.setColor(Colors.BrownSC.getColor());
-    }//move somewhere else
-    public void colorSCFailedToConnect(){
-        soundCloudAvaiLable.setColor(Colors.White.getColor());
-    }//move somewhere else
-
-    private String getTrueTitle(String title, String channelName){//move somewhere else
-        if (title.contains(" - "))
-            return title;
-        if (title.contains("-"))
-            return title.replaceFirst("-", " - ");
-        return  channelName + " - " + title;
+    public WLabel getYouTubeAvaiLabel(){
+        return youTubeAvaiLable;
     }
-    private String fixEncoding(String input){
-        try {
-            return new String(input.getBytes("windows-1251"), StandardCharsets.UTF_8);
-        } catch (Exception ignored){}       //Never occurs
-        return input;
+    public WLabel getSoundCloudAvaiLabel(){
+        return soundCloudAvaiLable;
     }
-
     public boolean tryToRunNextTask(){
         if (!busy && runQueue.size() != 0){
             runQueue.poll().run();

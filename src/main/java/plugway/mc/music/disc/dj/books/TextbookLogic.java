@@ -1,10 +1,7 @@
 package plugway.mc.music.disc.dj.books;
 
-
-import net.minecraft.client.gui.screen.ingame.BookEditScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import plugway.mc.music.disc.dj.search.LinkValidator;
-
 
 import java.util.ArrayList;
 import java.util.List;

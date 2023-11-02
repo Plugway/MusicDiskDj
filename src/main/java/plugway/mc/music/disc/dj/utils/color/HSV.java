@@ -1,4 +1,4 @@
-package plugway.mc.music.disc.dj.image;
+package plugway.mc.music.disc.dj.utils.color;
 
 import static org.apache.commons.lang3.math.NumberUtils.min;
 

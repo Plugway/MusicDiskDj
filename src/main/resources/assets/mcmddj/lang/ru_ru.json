@@ -15,5 +15,7 @@
   "musicdiskdj.name.label.status.connectingSC": "Подключаюсь к SoundCloud",
   "musicdiskdj.name.label.button.import": "Импорт",
   "musicdiskdj.name.label.button.export": "Экспорт",
-  "musicdiskdj.name.error": "Ошибка"
+  "musicdiskdj.name.error": "Ошибка",
+  "musicdiskdj.name.done": "Готово",
+  "musicdiskdj.key.openmenu": "Открыть меню"
 }

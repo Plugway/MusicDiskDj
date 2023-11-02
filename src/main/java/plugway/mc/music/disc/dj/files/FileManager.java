@@ -1,36 +1,25 @@
 package plugway.mc.music.disc.dj.files;
 
-import com.ibm.icu.impl.Assert;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
-import org.apache.commons.compress.archivers.jar.JarArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import plugway.mc.music.disc.dj.MusicDiskDj;
-import plugway.mc.music.disc.dj.image.PreviewProvider;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class FileManager {
 
@@ -51,13 +40,11 @@ public class FileManager {
                 }
             }
             if (modPath.toString().trim().endsWith(".jar")){
-                System.out.println("ends with jar");
-                System.out.println(modPath);
+                MusicDiskDj.LOGGER.info("Mod file:" + modPath);
                 try {
                     JarArchiveInputStream inputStream = new JarArchiveInputStream(new FileInputStream(modPath.toString()));
                     JarArchiveEntry entry;
                     while ((entry = inputStream.getNextJarEntry()) != null) {
-                        System.out.println("entry: " + entry.getName());
                         if (entry.getName().trim().equals("assets/mcmddj/templates/mcmddj_template.zip")){
                             var fileName = entry.getName().split("/");
                             File copied = new File(MusicDiskDj.modDirectoryPath, fileName[fileName.length-1]);
@@ -135,46 +122,6 @@ public class FileManager {
             String[] subNote = node.list();
             for (String filename: subNote) {
                 generateFileList(new File(node, filename));
-            }
-        }
-    }
-
-
-    public static void zipIt(String zipFile) {
-        byte[] buffer = new byte[1024];
-        FileOutputStream fos;
-        ZipOutputStream zos = null;
-        try {
-            fos = new FileOutputStream(zipFile);
-            zos = new ZipOutputStream(fos);
-
-            System.out.println("Output to Zip : " + zipFile);
-            FileInputStream in = null;
-
-            for (File file: filesToArchive) {
-                System.out.println("File Added : " + file);
-                ZipEntry ze = new ZipEntry(file.toString());
-                zos.putNextEntry(ze);
-                try {
-                    in = new FileInputStream(sourceFolder + File.separator + file);
-                    int len;
-                    while ((len = in .read(buffer)) > 0) {
-                        zos.write(buffer, 0, len);
-                    }
-                } finally {
-                    in.close();
-                }
-            }
-
-            zos.closeEntry();
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                zos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }

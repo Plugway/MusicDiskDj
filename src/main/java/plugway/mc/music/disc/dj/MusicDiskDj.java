@@ -37,6 +37,7 @@ public class MusicDiskDj implements ModInitializer {
         File tempDir = new File(tempPath);
         File templateDir = new File(templatePath);
         File resultDir = new File(resultPath);
+        File cacheDir = new File(cachePath);
         if (!modDir.exists())
             result = modDir.mkdir();
         if (!tempDir.exists() && result)
@@ -45,6 +46,8 @@ public class MusicDiskDj implements ModInitializer {
             result = templateDir.mkdir();
         if (!resultDir.exists() && result)
             result = resultDir.mkdir();
+        if (!cacheDir.exists() && result)
+            result = cacheDir.mkdir();
         if (result)
             result = FileManager.extractFilesForWork();
         return result;

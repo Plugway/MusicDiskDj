@@ -1,6 +1,5 @@
 package plugway.mc.music.disc.dj.config;
 
-
 import plugway.mc.music.disc.dj.music.disks.MinecraftDiskProvider;
 
 import java.util.ArrayList;

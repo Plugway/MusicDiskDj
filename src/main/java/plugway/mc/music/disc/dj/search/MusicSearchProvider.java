@@ -6,13 +6,13 @@ import io.sfrei.tracksearch.exceptions.TrackSearchException;
 import io.sfrei.tracksearch.tracks.*;
 import plugway.mc.music.disc.dj.MusicDiskDj;
 import plugway.mc.music.disc.dj.gui.MainGui;
+import plugway.mc.music.disc.dj.gui.color.ColorUtils;
 import plugway.mc.music.disc.dj.gui.handlers.Status;
 import plugway.mc.music.disc.dj.gui.handlers.StatusHandler;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class MusicSearchProvider {
     private static YouTubeClient clientYT = null;
@@ -53,9 +53,6 @@ public class MusicSearchProvider {
         }
     }
 
-//    public static List<Track> musicSearch(List<String> links){
-//        return failedSearch;
-//    }
     private static List<Track> mergeTrackList(List<Track> tracksYT, List<Track> tracksSC){
         List<Track> trackList = new ArrayList<>();
         int groupSize = 5;
@@ -105,11 +102,11 @@ public class MusicSearchProvider {
                 clientYTThread.stop();
                 throw new ClientConnectException("YT client connect error");
             }
-            gui.colorYTConnected();
+            ColorUtils.updateYTColor(gui.getYouTubeAvaiLabel(), true);
         } catch (ClientConnectException | InterruptedException e){
             MusicDiskDj.LOGGER.info("Error while connecting: " + e);
             clientYT = null;
-            gui.colorYTFailedToConnect();
+            ColorUtils.updateYTColor(gui.getYouTubeAvaiLabel(), false);
         }
 
         statusHandler.getProgressBarHandler().nextSection();
@@ -128,11 +125,11 @@ public class MusicSearchProvider {
                 clientSCThread.stop();
                 throw new ClientConnectException("SC client connect error");
             }
-            gui.colorSCConnected();
+            ColorUtils.updateSCColor(gui.getSoundCloudAvaiLabel(), true);
         } catch (ClientConnectException | InterruptedException e){
             MusicDiskDj.LOGGER.info("Error while connecting: " + e);
             clientSC = null;
-            gui.colorSCFailedToConnect();
+            ColorUtils.updateSCColor(gui.getSoundCloudAvaiLabel(), false);
         }
         statusHandler.reset();
     }

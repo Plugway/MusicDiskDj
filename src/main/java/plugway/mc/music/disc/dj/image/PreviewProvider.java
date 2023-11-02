@@ -5,8 +5,6 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import plugway.mc.music.disc.dj.MusicDiskDj;
-import plugway.mc.music.disc.dj.files.FileManager;
-import plugway.mc.music.disc.dj.gui.MainGui;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

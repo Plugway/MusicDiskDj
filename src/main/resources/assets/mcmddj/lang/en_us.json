@@ -15,5 +15,7 @@
   "musicdiskdj.name.mcmddj": "Music Disk DJ",
   "musicdiskdj.name.label.button.import": "Import",
   "musicdiskdj.name.label.button.export": "Export",
-  "musicdiskdj.name.error": "Error"
+  "musicdiskdj.name.error": "Error",
+  "musicdiskdj.name.done": "Done",
+  "musicdiskdj.key.openmenu": "Open GUI"
 }

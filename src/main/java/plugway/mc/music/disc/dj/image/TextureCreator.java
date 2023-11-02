@@ -1,12 +1,12 @@
 package plugway.mc.music.disc.dj.image;
 
 import plugway.mc.music.disc.dj.MusicDiskDj;
+import plugway.mc.music.disc.dj.utils.color.HSV;
 import plugway.mc.music.disc.dj.image.colorThief.ColorThief;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 

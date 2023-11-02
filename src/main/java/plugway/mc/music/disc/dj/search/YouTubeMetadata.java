@@ -35,7 +35,6 @@ public class YouTubeMetadata {
             String videoId = videoIds.get(i);
             int index = i;
             executorService.submit(() -> {
-                System.out.println(index + " thread started with id:" + videoId);
                 try{
                     if (useStatusHandler)
                         statusHandler.getProgressBarHandler().bump();
@@ -64,7 +63,6 @@ public class YouTubeMetadata {
                     MusicDiskDj.LOGGER.info("Skipping track: " + videoId + ", more info: " + e);
                     trackList.set(index, MusicSearchProvider.getEmptyTrack());
                 }
-                System.out.println(index + " thread ended with result:" + trackList.get(index).toString());
             });
         }
         executorService.shutdown();

@@ -1,11 +1,8 @@
 package plugway.mc.music.disc.dj.config;
 
-
 import io.wispforest.owo.config.annotation.Config;
 
-import java.util.ArrayList;
 import java.util.List;
-
 
 @Config(name = "mcmddj", wrapperName = "McmddjConfig")
 public class ConfigurationModel {
