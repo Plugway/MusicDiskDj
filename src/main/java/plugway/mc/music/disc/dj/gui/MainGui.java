@@ -445,7 +445,7 @@ public class MainGui extends LightweightGuiDescription {
                             MusicDiskDj.LOGGER.info("SC track config not implemented");//implementation needed
                     }
                     statusHandler.getProgressBarHandler().nextSection();
-                    FileUtils.write(langFile, langFileContent, Charset.defaultCharset());
+                    FileUtils.write(langFile, langFileContent, StandardCharsets.UTF_8);
 
                     //adding to archive
                     statusHandler.setStatus(1.0/4, Status.cpCreatingArchive);
@@ -485,6 +485,7 @@ public class MainGui extends LightweightGuiDescription {
                         MusicDiskDj.LOGGER.severe("Error while deleting temp files: " + e);
                     }
                     statusHandler.reset();
+                    setNotBusy();
                 }
             });
             creationThread.start();

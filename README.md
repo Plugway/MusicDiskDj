@@ -27,11 +27,11 @@ You can find a ready-made build of this mod on the [releases page](https://githu
 	- [ ] parse sc links
 	- [ ] import/export through books
 	- [x] add reconnect button and connection info (Search results from: YT, SC    🔄)
-- [ ] <span style="background:#fff88f">remove garbage code  </span>
-- [ ] System.out.println -> logger
 - [ ] <span style="background:#d3f8b6">directional sound option</span> (low priority)
 - [ ] <span style="background:#fff88f">dynamic results count</span> (low priority)
 - [ ] <span style="background:#d3f8b6">Resource pack is not enabling when created for the first time</span> (low priority)
+- [x] <span style="background:#fff88f">remove garbage code  </span>
+- [x] System.out.println -> logger
 - [x] <span style="background:#d3f8b6">handle all ignored exceptions</span>
 	- [x] <span style="background:#fff88f">Fix freezing when trying to download when yt-dlp is not allowed to access the Internet (try again after a while)</span>
 - [x] <span style="background:#ff4d4f">Cache tracks with info for faster minor changes in playlist</span>
