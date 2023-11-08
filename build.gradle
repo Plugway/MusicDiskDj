@@ -45,7 +45,8 @@ dependencies {
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
-	modImplementation include("io.github.cottonmc:LibGui:9.0.0+1.20.2")//4.0.0-alpha.1+21w11a")//3.3.2+1.16.4")
+	//https://github.com/CottonMC/LibGui
+	modImplementation include("io.github.cottonmc:LibGui:8.1.0+1.20.1")//4.0.0-alpha.1+21w11a")//3.3.2+1.16.4")
 	implementation include("io.sfrei:tracksearch:0.8.1")
 	implementation include("com.squareup.okhttp3:okhttp:4.11.0")
 	implementation include("com.squareup.retrofit2:retrofit:2.9.0")
