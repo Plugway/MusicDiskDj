@@ -9,11 +9,11 @@
     "Plugway"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://modrinth.com/mod/music-disk-dj",
+    "sources": "https://github.com/Plugway/MusicDiskDj"
   },
 
-  "license": "CC0-1.0",
+  "license": "GNU-v3",
   "icon": "assets/mcmddj/icon.png",
 
   "environment": "*",
