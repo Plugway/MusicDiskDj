@@ -27,15 +27,15 @@ public class ColorUtils {
     }
     public static void updateYTColor(WLabel youTubeAvaiLabel, boolean connected){
         if (connected)
-            youTubeAvaiLabel.setColor(Colors.RedYT.getColor());
+            youTubeAvaiLabel.setColor(Colors.RedYT.getColor(), Colors.RedYT.getColor());
         else
-            youTubeAvaiLabel.setColor(Colors.White.getColor());
+            youTubeAvaiLabel.setColor(Colors.White.getColor(), Colors.White.getColor());
 
     }
     public static void updateSCColor(WLabel soundCloudAvaiLabel, boolean connected){
         if (connected)
-            soundCloudAvaiLabel.setColor(Colors.BrownSC.getColor());
+            soundCloudAvaiLabel.setColor(Colors.BrownSC.getColor(), Colors.BrownSC.getColor());
         else
-            soundCloudAvaiLabel.setColor(Colors.White.getColor());
+            soundCloudAvaiLabel.setColor(Colors.White.getColor(), Colors.White.getColor());
     }
 }

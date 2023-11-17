@@ -9,6 +9,7 @@ public enum Colors {
     RedYT(0xFFc90000),
     BrownSC(0xFFc94200),
     PastelBlue(0xFFcbd4e9),
+    PastelBlueDM(0xFF495672),
     Gray63(0xFFa0a0a0);
 
     private final int color;

@@ -1,6 +1,7 @@
 package plugway.mc.music.disc.dj.gui;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
+import io.github.cottonmc.cotton.gui.client.LibGui;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
@@ -93,6 +94,7 @@ public class MainGui extends LightweightGuiDescription {
         WPlainPanel root = new WPlainPanel();
         root.setSize(640,360);
         setRootPanel(root);
+        this.addPainters();
 
 
         searchField.setEditable(true);
@@ -112,12 +114,12 @@ public class MainGui extends LightweightGuiDescription {
         reconnectButton.setOnClick(reconnect());
         WLabel commaLabel = new WLabel(toText(", "));
         soundCloudAvaiLable.setVerticalAlignment(VerticalAlignment.CENTER);
-        soundCloudAvaiLable.setColor(Colors.White.getColor());
+        soundCloudAvaiLable.setColor(Colors.White.getColor(), Colors.White.getColor());
         soundCloudAvaiLable.setSize(56, resultLabelPanel.getHeight()-2);
         commaLabel.setVerticalAlignment(VerticalAlignment.CENTER);
         commaLabel.setSize(6, resultLabelPanel.getHeight()-2);
         youTubeAvaiLable.setVerticalAlignment(VerticalAlignment.CENTER);
-        youTubeAvaiLable.setColor(Colors.White.getColor());
+        youTubeAvaiLable.setColor(Colors.White.getColor(), Colors.White.getColor());
         youTubeAvaiLable.setSize(42, resultLabelPanel.getHeight()-2);
         resultLabelPanel.add(resultLabel, 4, 2, resultLabelPanel.getWidth()-8, resultLabelPanel.getHeight()-2);
         resultLabelPanel.add(reconnectButton, resultLabelPanel.getWidth()-20, 1, 20, 20);
@@ -130,7 +132,7 @@ public class MainGui extends LightweightGuiDescription {
         resultPanel.setSize(405, 200);
         resultScrollPanel = new WScrollPanel(resultPanel);
         resultScrollPanel.setScrollingHorizontally(TriState.FALSE);
-        resultScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
+        resultScrollPanel.setBackgroundPainter(BackgroundPainter.VANILLA);//BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
         root.add(resultScrollPanel, resultLabelPanel.getX(), resultLabelPanel.getY()+resultLabelPanel.getHeight()-1, 405, 258);
 
         for (int i = 0; i < resultsCount; i++){
@@ -164,7 +166,7 @@ public class MainGui extends LightweightGuiDescription {
         disksPanel.setSize(120, 535);
         disksScrollPanel = new WScrollPanel(disksPanel);
         disksScrollPanel.setScrollingHorizontally(TriState.FALSE);
-        disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
+        disksScrollPanel.setBackgroundPainter(BackgroundPainter.VANILLA);//BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
         root.add(disksScrollPanel, root.getWidth() - 190 - 15, 15, 190, root.getHeight()-30);
 
         for (int i = 0; i < musicDisksCount; i++){
@@ -282,11 +284,11 @@ public class MainGui extends LightweightGuiDescription {
                 if(track.getSource() == TrackSource.Youtube){
                     views[i].setText(TextUtils.toPrettyNumber(track.getTrackMetadata().getStreamAmount(), " views"));
                     sourceName[i].setText(toText("YouTube"));
-                    sourceName[i].setColor(Colors.RedYT.getColor());
+                    sourceName[i].setColor(Colors.RedYT.getColor(), Colors.RedYT.getColor());
                 } else {
                     views[i].setText(TextUtils.toPrettyNumber(track.getTrackMetadata().getStreamAmount(), " plays"));
                     sourceName[i].setText(toText("SoundCloud"));
-                    sourceName[i].setColor(Colors.BrownSC.getColor());
+                    sourceName[i].setColor(Colors.BrownSC.getColor(), Colors.BrownSC.getColor());
                 }
                 results[i].setAllowToClick(true);
             } else {
@@ -307,7 +309,7 @@ public class MainGui extends LightweightGuiDescription {
             result.setBackgroundPainter(null);
         }
         if (chosenResult != -1)
-            results[chosenResult].setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
+            results[chosenResult].setBackgroundPainter(BackgroundPainter.VANILLA);//BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
     }
     private void updateDisks(){
         for (int i = 0; i < musicDisksCount; i++) {
@@ -332,15 +334,23 @@ public class MainGui extends LightweightGuiDescription {
                 disks[i].setBackgroundPainter(null);
             } else {
                 atLeastOne = true;
-                disks[i].setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
+                disks[i].setBackgroundPainter(BackgroundPainter.VANILLA);//BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
             }
         }
-        if (chosenMusicDisk != -1)
-            disks[chosenMusicDisk].setBackgroundPainter(BackgroundPainter.createColorful(Colors.PastelBlue.getColor()));
-        if (atLeastOne)
-            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.Gray63.getColor()));
+        if (chosenMusicDisk != -1) {
+            if (!LibGui.isDarkMode())
+                disks[chosenMusicDisk].setBackgroundPainter(BackgroundPainter.createColorful(Colors.PastelBlue.getColor()));
+            else
+                disks[chosenMusicDisk].setBackgroundPainter(BackgroundPainter.createColorful(Colors.PastelBlueDM.getColor()));
+        }
+        if (atLeastOne) {
+            if (!LibGui.isDarkMode())
+                disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.Gray63.getColor()));
+            else
+                disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.Black4.getColor()));
+        }
         else
-            disksScrollPanel.setBackgroundPainter(BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
+            disksScrollPanel.setBackgroundPainter(BackgroundPainter.VANILLA);//BackgroundPainter.createColorful(Colors.LightGray78.getColor()));
     }
     private Runnable reconnect(){
         return () -> {
@@ -532,4 +542,10 @@ public class MainGui extends LightweightGuiDescription {
     public void addToQueue(Runnable task){
         runQueue.add(task);
     }
+
+    /*@Override
+    public TriState isDarkMode() {
+        // TRUE to force dark mode, FALSE to force light mode, DEFAULT to use the global setting
+        return TriState.TRUE;
+    }*/
 }
