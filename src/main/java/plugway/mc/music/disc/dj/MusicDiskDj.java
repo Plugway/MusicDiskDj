@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import plugway.mc.music.disc.dj.config.ConfigurationManager;
 import plugway.mc.music.disc.dj.files.FileManager;
 import plugway.mc.music.disc.dj.keybinds.OpenMenu;
+import plugway.mc.music.disc.dj.utils.SystemChecker;
 
 import java.io.File;
 import java.util.logging.Logger;
@@ -21,11 +22,13 @@ public class MusicDiskDj implements ModInitializer {
     public static final String cachePath = modDirectoryPath+"\\cache";
     @Override
     public void onInitialize() {
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> { OpenMenu.resetGUI(); });
+        if (!SystemChecker.getOSName().equals("Windows"))
+            return;
         if (!createModFolders()) //if can't create directory
             return;
         ConfigurationManager.init();
         initKeyBinds();
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> { OpenMenu.resetGUI(); });
     }
 
     private void initKeyBinds(){

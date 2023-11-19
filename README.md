@@ -30,6 +30,8 @@ You can find a ready-made build of this mod on the [releases page](https://githu
 - [ ] <span style="background:#d3f8b6">directional sound option</span> (low priority)
 - [ ] <span style="background:#fff88f">dynamic results count</span> (low priority)
 - [ ] <span style="background:#d3f8b6">Resource pack is not enabling when created for the first time</span> (low priority)
+- [ ] Linux support
+- [x] Dark mode support
 - [x] <span style="background:#fff88f">remove garbage code  </span>
 - [x] System.out.println -> logger
 - [x] <span style="background:#d3f8b6">handle all ignored exceptions</span>
